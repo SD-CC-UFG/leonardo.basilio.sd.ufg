@@ -1,0 +1,23 @@
+
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChatClient", "ChatClient\ChatClient.csproj", "{C1548E6B-E837-41EC-86F0-7ED23B477607}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChatServer", "ChatServer\ChatServer.csproj", "{5CE26390-6B15-415A-ABB4-8986B63D8B10}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C1548E6B-E837-41EC-86F0-7ED23B477607}.Debug|x86.ActiveCfg = Debug|x86
+		{C1548E6B-E837-41EC-86F0-7ED23B477607}.Debug|x86.Build.0 = Debug|x86
+		{C1548E6B-E837-41EC-86F0-7ED23B477607}.Release|x86.ActiveCfg = Release|x86
+		{C1548E6B-E837-41EC-86F0-7ED23B477607}.Release|x86.Build.0 = Release|x86
+		{5CE26390-6B15-415A-ABB4-8986B63D8B10}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{5CE26390-6B15-415A-ABB4-8986B63D8B10}.Debug|x86.Build.0 = Debug|Any CPU
+		{5CE26390-6B15-415A-ABB4-8986B63D8B10}.Release|x86.ActiveCfg = Release|Any CPU
+		{5CE26390-6B15-415A-ABB4-8986B63D8B10}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

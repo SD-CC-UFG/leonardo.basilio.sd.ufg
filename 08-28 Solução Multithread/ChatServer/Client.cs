@@ -9,10 +9,7 @@ namespace ChatServer {
 
     class Client {
         
-        public string name {
-            get;
-            private set;
-        }
+        public string username { get; private set; }
 
         private TcpClient socket;        
 
@@ -68,9 +65,9 @@ namespace ChatServer {
                 }
 
                 var message = System.Text.Encoding.UTF8.GetString(messageBuffer);
-                var lines = message.Split('\n', 2);
+				var lines = message.Split(new char[] { '\n' }, 2);
                                     
-                this.name = lines[0];
+                this.username = lines[0];
 
                 if(lines[1] != ""){
                     
@@ -90,8 +87,8 @@ namespace ChatServer {
 
             if(socket == null) return;
 
-            var message = sender.name + "\n" + text;
-            
+            var message = sender.username + "\n" + text;
+
             lock(outputQueueLock){
 
                 outputQueue.Enqueue(System.Text.Encoding.UTF8.GetBytes(message));                
@@ -158,7 +155,7 @@ namespace ChatServer {
 
             socket = null;
 
-            if(this.name != ""){
+            if(this.username != ""){
 
                 NewMessage(this, "<< SAIU DA SALA");
 

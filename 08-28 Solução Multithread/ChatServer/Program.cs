@@ -15,13 +15,15 @@ namespace ChatServer {
             
             var server = new TcpListener(IPAddress.Any, 8888);
 
+			server.Start();
+
             while(true){
 
                 var client = new Client(server.AcceptTcpClient());
 
                 lock(clientListLock){
-                    
-                    clientList.Append(client);
+
+                    clientList.AddLast(client);
 
                 }
 
@@ -35,12 +37,12 @@ namespace ChatServer {
         }
 
         static void HandleNewMessage(Client sender, string text){
-
+			
             lock(clientListLock){
-                
+				
                 foreach(Client client in clientList){
 
-                    if(client != sender) client.SendMessage(sender, text);
+                    client.SendMessage(sender, text);
 
                 }
 
@@ -51,7 +53,7 @@ namespace ChatServer {
         static void HandleSessionClosed(Client sender){
 
             lock(clientListLock){
-
+				
                 clientList.Remove(sender);
 
             }
