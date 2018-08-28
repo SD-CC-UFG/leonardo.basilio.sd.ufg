@@ -14,9 +14,8 @@ namespace ChatServer {
         private TcpClient socket;        
 
         private Queue<byte[]> outputQueue = new Queue<byte[]>();
-        private object outputQueueLock = new object();
-
-        private object socketWriteLock = new object();
+		private object outputQueueLock = new object();
+        private ManualResetEvent outputQueueEvent = new ManualResetEvent(false);
 
         private bool reading = false;
 
@@ -39,6 +38,7 @@ namespace ChatServer {
                 reading = true;
 
                 Task.Run(new Action(ReadMessages));
+				Task.Run(new Action(SendQueueMessages));
 
             }
 
@@ -91,9 +91,9 @@ namespace ChatServer {
 
             lock(outputQueueLock){
 
-                outputQueue.Enqueue(System.Text.Encoding.UTF8.GetBytes(message));                
+                outputQueue.Enqueue(System.Text.Encoding.UTF8.GetBytes(message));
 
-                if(outputQueue.Count == 1) Task.Run(new Action(SendQueueMessages));
+				outputQueueEvent.Set();
 
             }
             
@@ -101,48 +101,44 @@ namespace ChatServer {
 
         private void SendQueueMessages(){
 
-            while(true){
+            var writer = new BinaryWriter(socket.GetStream());
 
-                if(!Monitor.TryEnter(socketWriteLock)) return;
+			while (true) {
 
-                var writer = new BinaryWriter(socket.GetStream());
+				outputQueueEvent.WaitOne();
 
-                while(true){
+				if (socket == null) break;
 
-                    byte[] message;
+				byte[] message;
 
-                    lock(outputQueueLock){
+				lock (outputQueueLock) {
 
-                        if(outputQueue.Count == 0) break;
-                            
-                        message = outputQueue.Dequeue();
+					if (outputQueue.Count == 0){
 
-                    }
-                    
-                    try {
+						outputQueueEvent.Reset();
 
-                        writer.Write(message.Length);
-                        writer.Write(message);
+						continue;
 
-                    }catch(IOException){
+					}
 
-                        Disconnect();
+					message = outputQueue.Dequeue();
 
-                        break;
+				}
 
-                    }
+				try {
 
-                }
+					writer.Write(message.Length);
+					writer.Write(message);
 
-                Monitor.Exit(socketWriteLock);
+				} catch (IOException) {
 
-                lock(outputQueueLock){
-                    
-                    if(outputQueue.Count == 0) return;
+					Disconnect();
 
-                }
+					break;
 
-            }
+				}
+
+			}
 
         }
 
@@ -154,6 +150,8 @@ namespace ChatServer {
             }
 
             socket = null;
+
+			outputQueueEvent.Set();
 
             if(this.username != ""){
 

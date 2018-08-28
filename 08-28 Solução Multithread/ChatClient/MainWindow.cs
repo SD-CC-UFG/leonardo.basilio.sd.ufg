@@ -12,7 +12,7 @@ public partial class MainWindow : Gtk.Window {
 
 	private Queue<byte[]> outputQueue = new Queue<byte[]>();
     private object outputQueueLock = new object();
-	private object socketWriteLock = new object();
+	private ManualResetEvent outputQueueEvent = new ManualResetEvent(false);
 
 	public MainWindow() : base(Gtk.WindowType.Toplevel) {
 		Build();
@@ -80,7 +80,7 @@ public partial class MainWindow : Gtk.Window {
 
             outputQueue.Enqueue(System.Text.Encoding.UTF8.GetBytes(message));
 
-			if (outputQueue.Count == 1) Task.Run(new System.Action(EnviarMensagensNaFila));
+			outputQueueEvent.Set();
 
         }
 
@@ -88,52 +88,44 @@ public partial class MainWindow : Gtk.Window {
 
 	private void EnviarMensagensNaFila() {
 
+        var writer = new BinaryWriter(socket.GetStream());
+
         while (true) {
 
-            if (!Monitor.TryEnter(socketWriteLock)) return;
+			outputQueueEvent.WaitOne();
 
-            var writer = new BinaryWriter(socket.GetStream());
+			if (socket == null) break;
 
-            while (true) {
-
-                byte[] message;
-
-                lock (outputQueueLock) {
-
-                    if (outputQueue.Count == 0) break;
-
-                    message = outputQueue.Dequeue();
-
-                }
-
-                try {
-
-                    writer.Write(message.Length);
-                    writer.Write(message);
-
-                } catch (IOException) {
-
-					Desconectar();
-
-					lock (outputQueueLock) {
-						outputQueue.Clear();
-					}
-
-                    break;
-
-                }
-
-            }
-
-            Monitor.Exit(socketWriteLock);
+            byte[] message;
 
             lock (outputQueueLock) {
 
-                if (outputQueue.Count == 0) return;
+				if (outputQueue.Count == 0) {
+
+					outputQueueEvent.Reset();
+
+					continue;
+
+				}
+
+                message = outputQueue.Dequeue();
 
             }
 
-        }
+            try {
+
+                writer.Write(message.Length);
+                writer.Write(message);
+
+            } catch (IOException) {
+
+				Desconectar();
+               
+                break;
+
+            }
+   
+		}
 
     }
 
@@ -174,7 +166,6 @@ public partial class MainWindow : Gtk.Window {
 				buffer.Insert(ref iter, lines[1] + "\n\n");
 
 				txtLista.ScrollToMark(buffer.InsertMark, 0, true, 0, 1);
-				//txtLista.ScrollToIter(buffer.EndIter, 0, true, 0, 1);
 
 			});
 
@@ -206,7 +197,10 @@ public partial class MainWindow : Gtk.Window {
 
         btConectar.Label = "Desconectar";
 
+		outputQueueEvent.Reset();
+
 		Task.Run(new System.Action(LerMensagens));
+		Task.Run(new System.Action(EnviarMensagensNaFila));
 
 		EnviarMensagem("");
 
@@ -215,6 +209,10 @@ public partial class MainWindow : Gtk.Window {
 	private void Desconectar(){
 
 		if (socket != null) {
+         
+            lock (outputQueueLock) {
+                outputQueue.Clear();
+            }
 
 			try {
 				socket.Close();
@@ -222,6 +220,8 @@ public partial class MainWindow : Gtk.Window {
 			}
 
 			socket = null;
+
+			outputQueueEvent.Set();
 
 			Application.Invoke((object sender, EventArgs e) => {
 
