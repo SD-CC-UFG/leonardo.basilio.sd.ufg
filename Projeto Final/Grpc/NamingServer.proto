@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package Chat.Grpc;
+
+message ServiceRequest {
+    enum ServiceType {
+        AUTH = 0;
+        MESSAGING = 1;
+    }
+	ServiceType name = 1;
+}
+
+
+message ServiceResponse {
+	string ip = 1;
+	int32 port = 2;
+}
+
+service NamingServer {
+
+	rpc GetServiceLocation(ServiceRequest) returns (ServiceResponse) {}
+
+}
