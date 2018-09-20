@@ -18,6 +18,6 @@ message UserCredential {
 service AuthServer {
 
 	rpc Authenticate(UserLogin) returns (UserCredential) {}
-	rpc SignIn(UserLogin) returns (UserCredential) {}
+	rpc SignUp(UserLogin) returns (UserCredential) {}
 
 }
