@@ -19,11 +19,13 @@ type service struct {
 
 // tipo que implementa a interface NamingServer do Grpc
 type NamingServer struct {
-	services []service
+	services         map[string][]service
+	nextServiceIndex map[string]int
 }
 
 func NewNamingServer() (NamingServer, error) {
-	namingServer := NamingServer{}
+	namingServer := NamingServer{services: make(map[string][]service),
+		nextServiceIndex: make(map[string]int)}
 
 	servicesFile, err := os.Open("services.conf")
 
@@ -49,8 +51,9 @@ func NewNamingServer() (NamingServer, error) {
 			return NamingServer{}, err
 		}
 
-		namingServer.services = append(namingServer.services,
+		namingServer.services[serviceType] = append(namingServer.services[serviceType],
 			service{ip: ip, port: int32(port), t: serviceType})
+		namingServer.nextServiceIndex[serviceType] = 0
 	}
 
 	return namingServer, nil
@@ -72,11 +75,15 @@ func (s *NamingServer) GetServiceLocation(ctx context.Context, request *pb.Servi
 		return nil, errors.New("Service do not exists.\n")
 	}
 
-	for _, service := range s.services {
-		if service.t == t {
-			return &pb.ServiceResponse{Ip: service.ip, Port: service.port}, nil
-		}
+	services, ok := s.services[t]
+	if !ok {
+		return nil, errors.New("Service unavailable.\n")
 	}
+	service := services[s.nextServiceIndex[t]]
+	s.nextServiceIndex[t]++
+	s.nextServiceIndex[t] %= len(s.services[t])
+
+	return &pb.ServiceResponse{Ip: service.ip, Port: service.port}, nil
 
 	return nil, errors.New("Service do not exists.\n")
 }

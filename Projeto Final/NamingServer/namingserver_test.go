@@ -8,11 +8,6 @@ import (
 	"google.golang.org/grpc"
 )
 
-// nesse prototipo se for requisitado AuthServer deve ser retornado
-// ip: 200.0.13.102 port: 7777
-// se for MessagingServer
-// ip: 190.0.13.120 port: 8888
-
 func TestRequestAuthServer(t *testing.T) {
 	t.Log("Test request for a AuthServer.")
 	conn, err := grpc.Dial("localhost:7777", grpc.WithInsecure())
@@ -23,15 +18,12 @@ func TestRequestAuthServer(t *testing.T) {
 
 	client := pb.NewNamingServerClient(conn)
 
-	response, err := client.GetServiceLocation(context.Background(),
-		&pb.ServiceRequest{Name: pb.ServiceRequest_AUTH})
+	request := &pb.ServiceRequest{Name: pb.ServiceRequest_AUTH}
+
+	response, err := client.GetServiceLocation(context.Background(), request)
 
 	if err != nil {
 		t.Error(err)
-	}
-
-	if response.Ip != "200.0.13.102" || response.Port != 7777 {
-		t.Errorf("Response of naming server was incorrect.\n")
 	}
 
 	t.Logf("Test successful. Response: %v.\n", response)
@@ -48,15 +40,12 @@ func TestRequestMessagingServer(t *testing.T) {
 
 	client := pb.NewNamingServerClient(conn)
 
-	response, err := client.GetServiceLocation(context.Background(),
-		&pb.ServiceRequest{Name: pb.ServiceRequest_MESSAGING})
+	request := &pb.ServiceRequest{Name: pb.ServiceRequest_MESSAGING}
+
+	response, err := client.GetServiceLocation(context.Background(), request)
 
 	if err != nil {
 		t.Error(err)
-	}
-
-	if response.Ip != "190.0.13.120" || response.Port != 8888 {
-		t.Errorf("Response of naming server was incorrect.\n")
 	}
 
 	t.Logf("Test successful. Response: %v.\n", response)
