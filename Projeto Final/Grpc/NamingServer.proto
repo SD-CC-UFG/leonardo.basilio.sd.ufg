@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 package Chat.Grpc;
+option go_package = "grpc";
 
 message ServiceRequest {
     enum ServiceType {

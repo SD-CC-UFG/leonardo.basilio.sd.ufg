@@ -3,6 +3,7 @@ syntax = "proto3";
 import "AuthServer.proto";
 
 package Chat.Grpc;
+option go_package = "grpc";
 
 message TextMessage {
     string text = 1;
