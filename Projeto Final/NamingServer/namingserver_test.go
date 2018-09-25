@@ -3,7 +3,7 @@ package main
 import (
 	"testing"
 
-	pb "github.com/sd-cc-ufg/leonardo.basilio.sd.ufg/ProjetoFinal/NamingServer/Chat_Grpc"
+	pb "github.com/sd-cc-ufg/leonardo.basilio.sd.ufg/ProjetoFinal/NamingServer/grpc"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 )
