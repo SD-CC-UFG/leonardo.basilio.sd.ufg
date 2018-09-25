@@ -9,11 +9,7 @@ namespace Client {
 		public FrmLogin() : base(Gtk.WindowType.Toplevel) {
 			
 			this.Build();
-
-			this.DeleteEvent += (o, args) => {
-				Gtk.Application.Quit();
-			};
-
+            
 		}
 
 		protected AuthServer.AuthServerClient GetAuthServer(){
@@ -28,7 +24,7 @@ namespace Client {
 
 		protected void OnBtQuitClicked(object sender, EventArgs e) {
 
-            
+			Gtk.Application.Quit();
 
 		}
 
@@ -41,15 +37,43 @@ namespace Client {
                 Password = txtPassword.Text
 			});
          
-			if(credential.Error == ""){
+			if(credential.Error != ""){
 
 				MessageBox.ShowError(this, credential.Error);
+
+			}else{
+
+				this.ShowMain(credential);
 
 			}
 
 		}
 
 		protected void OnBtSignInClicked(object sender, EventArgs e) {
+
+			var auth = this.GetAuthServer();
+
+			var credential = auth.Authenticate(new UserLogin() {
+                UserName = txtUserName.Text,
+                Password = txtPassword.Text
+            });
+
+            if (credential.Error != "") {
+
+                MessageBox.ShowError(this, credential.Error);
+
+            } else {
+
+                this.ShowMain(credential);
+
+            }
+
+		}
+
+		private void ShowMain(UserCredential credential){
+
+			MessageBox.ShowInfo(this, "OK!");
+
 		}
 
 	}

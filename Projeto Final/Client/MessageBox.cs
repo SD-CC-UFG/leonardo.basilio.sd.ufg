@@ -18,6 +18,20 @@ namespace Client {
 
 		}
 
+		public static void ShowInfo(Gtk.Window parent, string message) {
+
+            var dialog = new Gtk.MessageDialog(parent,
+                                               Gtk.DialogFlags.Modal,
+                                               Gtk.MessageType.Info,
+                                               Gtk.ButtonsType.Ok,
+                                               message);
+
+            dialog.Run();
+
+            dialog.Destroy();
+
+        }
+
     }
 
 }
