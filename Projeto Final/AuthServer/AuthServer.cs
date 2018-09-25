@@ -45,31 +45,49 @@ namespace AuthServer {
 
 		public override Task<UserCredential> SignUp(UserLogin request, ServerCallContext context) {
 
-			return new Task<UserCredential>(() => {
-				
+			return Task.Run(() => {
+
+				string error = null;
+
 				request.UserName = request.UserName.Trim();
 
-				try {
+                if (request.UserName == "") {
+                    
+					error = "Informe um nome de usuário.";
 
-					if(request.UserName == ""){
-						throw new ArgumentException("Informe um nome de usuário.");
+				}else if (request.Password.Length < 4) {
+
+					error = "Informe uma senha de pelo menos 4 caracteres.";
+
+				}else{
+
+					try {
+
+						usersCollection.InsertOne(request);
+
+						return CreateCredential(request.UserName);
+
+					} catch (Exception ex) {
+
+						var mongoException = ex as MongoWriteException;
+
+						if (mongoException?.WriteError.Code == 11000) {
+
+							error = "O usuário escolhido já existe.";
+
+						}else{
+
+							error = ex.Message;
+
+						}
+
 					}
-
-					if (request.Password.Length < 4) {
-                        throw new ArgumentException("Informe uma senha de pelo menos 4 caracteres.");
-                    }
-
-					usersCollection.InsertOne(request);
-
-				}catch(MongoDuplicateKeyException){
-
-					return new UserCredential() {
-						Error = "O usuário escolhido já existe."
-					};
 
 				}
 
-				return CreateCredential(request.UserName);
+				return new UserCredential() {
+                    Error = error
+                };
 
 			});
 
@@ -77,7 +95,7 @@ namespace AuthServer {
 
 		public override Task<UserCredential> Authenticate(UserLogin request, ServerCallContext context) {
 			
-			return new Task<UserCredential>(() => {
+			return Task.Run(() => {
                 
 				var user = usersCollection.Find(u => u.UserName == request.UserName &&
                                                      u.Password == request.Password).FirstOrDefault();
@@ -100,7 +118,7 @@ namespace AuthServer {
 
 		public override Task<UserCredential> RenewCredential(UserCredential request, ServerCallContext context) {
 
-			return new Task<UserCredential>(() => {
+			return Task.Run(() => {
 
 				if(this.CheckSignature(request)){
 
