@@ -151,7 +151,7 @@ namespace AuthServer {
 		private UserCredential CreateCredential(string username){
                          
 			var expiration = DateTime.Now.AddHours(1).ToUniversalTime();
-			var timestamp = expiration.Subtract(UNIX_EPOCH).Seconds;
+			var timestamp = (int) expiration.Subtract(UNIX_EPOCH).TotalSeconds;
             
 			return this.SignCredential(new UserCredential() {
 				UserName = username,
