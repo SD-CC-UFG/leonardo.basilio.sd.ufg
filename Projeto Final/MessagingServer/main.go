@@ -23,6 +23,7 @@ func main() {
 	grpcServer := grpc.NewServer()
 
 	messagingServer := server.NewMessagingServer()
+	messagingServer.StartLoop()
 
 	pb.RegisterMessagingServerServer(grpcServer, &messagingServer)
 
