@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	const port = 7777
+	const port = 8888
 	listen, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 
 	if err != nil {
