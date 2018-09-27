@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package Chat.Grpc;
+option go_package = "grpc";
+
+message UserLogin {
+	string user_name = 1;
+	string password = 2;
+}
+
+message UserCredential {
+	string user_name = 1;
+	int32 expiration = 2;
+	string signature = 3;
+	string error = 4;
+}
+
+service AuthServer {
+
+	rpc Authenticate(UserLogin) returns (UserCredential) {}
+	rpc SignUp(UserLogin) returns (UserCredential) {}
+	rpc RenewCredential(UserCredential) returns (UserCredential) {}
+
+}

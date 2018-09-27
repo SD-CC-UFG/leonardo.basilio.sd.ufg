@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+import "AuthServer.proto";
+
+package Chat.Grpc;
+option go_package = "grpc";
+
+message TextMessage {
+    string text = 1;
+}
+
+message ChatMessage {
+    enum ChatMessageType {
+        TEXT = 0;
+    }
+    ChatMessageType type = 1;
+    UserCredential user_credential = 2; // somente para envio
+    uint32 date_time = 3;
+    TextMessage text = 4;
+}
+
+service MessagingServer {
+
+    rpc TalkAndListen(stream ChatMessage) returns (stream ChatMessage) {}
+
+}

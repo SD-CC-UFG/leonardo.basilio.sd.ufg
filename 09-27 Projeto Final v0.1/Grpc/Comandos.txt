@@ -1,0 +1,7 @@
+../Client/packages/Grpc.Tools.1.15.0/tools/linux_x64/protoc --csharp_out ../AuthServer/Grpc --grpc_out ../AuthServer/Grpc AuthServer.proto --plugin=protoc-gen-grpc=../Client/packages/Grpc.Tools.1.15.0/tools/linux_x64/grpc_csharp_plugin
+
+../Client/packages/Grpc.Tools.1.15.0/tools/linux_x64/protoc --csharp_out ../Client/Grpc --grpc_out ../Client/Grpc AuthServer.proto --plugin=protoc-gen-grpc=../Client/packages/Grpc.Tools.1.15.0/tools/linux_x64/grpc_csharp_plugin
+../Client/packages/Grpc.Tools.1.15.0/tools/linux_x64/protoc --csharp_out ../Client/Grpc --grpc_out ../Client/Grpc NamingServer.proto --plugin=protoc-gen-grpc=../Client/packages/Grpc.Tools.1.15.0/tools/linux_x64/grpc_csharp_plugin
+../Client/packages/Grpc.Tools.1.15.0/tools/linux_x64/protoc --csharp_out ../Client/Grpc --grpc_out ../Client/Grpc MessagingServer.proto --plugin=protoc-gen-grpc=../Client/packages/Grpc.Tools.1.15.0/tools/linux_x64/grpc_csharp_plugin
+
+protoc -I ../../Grpc/ ../../Grpc/NamingServer.proto --go_out=plugins=grpc:.
