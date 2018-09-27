@@ -1,6 +1,5 @@
 ﻿using System;
 using Chat.Grpc;
-using Grpc.Core;
 
 namespace Client {
 
@@ -11,17 +10,7 @@ namespace Client {
 			this.Build();
             
 		}
-
-		protected AuthServer.AuthServerClient GetAuthServer(){
-
-			var authServer = new AuthServer.AuthServerClient(
-				new Channel("127.0.0.1", 50001, ChannelCredentials.Insecure)
-			);
-
-            return authServer;
-
-		}
-
+  
 		protected void OnBtQuitClicked(object sender, EventArgs e) {
 
 			Gtk.Application.Quit();
@@ -30,7 +19,7 @@ namespace Client {
 
 		protected void OnBtSignUpClicked(object sender, EventArgs e) {
 
-			var auth = this.GetAuthServer();
+			var auth = Services.GetAuthentication();
 
 			var credential = auth.SignUp(new UserLogin() {
                 UserName = txtUserName.Text,
@@ -51,7 +40,7 @@ namespace Client {
 
 		protected void OnBtSignInClicked(object sender, EventArgs e) {
 
-			var auth = this.GetAuthServer();
+			var auth = Services.GetAuthentication();
 
 			var credential = auth.Authenticate(new UserLogin() {
                 UserName = txtUserName.Text,
@@ -72,7 +61,11 @@ namespace Client {
 
 		private void ShowMain(UserCredential credential){
 
-			MessageBox.ShowInfo(this, "OK!");
+			var main = new FrmMain(credential);
+
+			main.Show();
+
+			this.Destroy();
 
 		}
 

@@ -52,15 +52,15 @@
       <SpecificVersion>False</SpecificVersion>
     </Reference>
     <Reference Include="Mono.Posix" />
-    <Reference Include="System.Interactive.Async">
-      <HintPath>packages\System.Interactive.Async.3.1.1\lib\net46\System.Interactive.Async.dll</HintPath>
-    </Reference>
     <Reference Include="Grpc.Core">
       <HintPath>packages\Grpc.Core.1.15.0\lib\net45\Grpc.Core.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Google.Protobuf">
       <HintPath>packages\Google.Protobuf.3.6.1\lib\net45\Google.Protobuf.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Interactive.Async">
+      <HintPath>packages\System.Interactive.Async.3.2.0\lib\net46\System.Interactive.Async.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -81,6 +81,9 @@
     <Compile Include="Grpc\NamingServer.cs" />
     <Compile Include="Grpc\NamingServerGrpc.cs" />
     <Compile Include="MessageBox.cs" />
+    <Compile Include="FrmMain.cs" />
+    <Compile Include="Services.cs" />
+    <Compile Include="gtk-gui\Client.FrmMain.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
