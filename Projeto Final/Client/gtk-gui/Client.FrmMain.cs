@@ -25,7 +25,7 @@ namespace Client
 			global::Stetic.Gui.Initialize(this);
 			// Widget Client.FrmMain
 			this.Name = "Client.FrmMain";
-			this.Title = global::Mono.Unix.Catalog.GetString("FrmMain");
+			this.Title = global::Mono.Unix.Catalog.GetString("Chat Client");
 			this.WindowPosition = ((global::Gtk.WindowPosition)(4));
 			// Container child Client.FrmMain.Gtk.Container+ContainerChild
 			this.vbox1 = new global::Gtk.VBox();

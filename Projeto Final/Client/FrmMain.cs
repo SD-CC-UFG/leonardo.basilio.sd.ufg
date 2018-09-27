@@ -61,6 +61,8 @@ namespace Client {
 
             if (messageString != "") {
 
+				txtMessage.Text = "";
+
 				streamingCall.RequestStream.WriteAsync(new ChatMessage() {
 					DateTime = (uint) DateTime.Now.Subtract(UNIX_EPOCH).TotalSeconds,
                     Type = ChatMessage.Types.ChatMessageType.Text,
