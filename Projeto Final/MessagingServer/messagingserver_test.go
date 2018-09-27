@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io"
 	"testing"
 	"time"
@@ -15,7 +16,7 @@ func createClientConnTest(username string, parallel bool) func(t *testing.T) {
 		if parallel {
 			t.Parallel()
 		}
-		conn, err := grpc.Dial("localhost:7777", grpc.WithInsecure())
+		conn, err := grpc.Dial("localhost:8888", grpc.WithInsecure())
 		if err != nil {
 			t.Error(err)
 		}
@@ -64,7 +65,10 @@ func TestClientConn(t *testing.T) {
 	t.Run("Test 1", createClientConnTest("leandro", true))
 }
 
-func TestTwoClientConn(t *testing.T) {
-	t.Run("Test 1", createClientConnTest("leandro", true))
-	t.Run("Test 2", createClientConnTest("joao", true))
+func TestNClientConn(t *testing.T) {
+	const N = 30
+	for i := 0; i < N; i++ {
+		t.Run(fmt.Sprintf("Test %d", i),
+			createClientConnTest(fmt.Sprintf("user_%0d", i), true))
+	}
 }

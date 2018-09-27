@@ -31,11 +31,13 @@ func (s *MessagingServer) StartLoop() {
 
 			log.Printf("Message received: %v\n", chatMessage)
 
+			s.mutex.Lock()
 			// percorre todos os channels de usuarios ativos
 			// e envia a mensagem
 			for _, userChannel := range s.userChannels {
 				userChannel <- chatMessage
 			}
+			s.mutex.Unlock()
 		}
 	}()
 }
@@ -77,10 +79,12 @@ func (s *MessagingServer) TalkAndListen(stream pb.MessagingServer_TalkAndListenS
 			if !firstMessage {
 				// em caso de erro (ou EOF), fecha o channel do usuario
 				// liberando go routine que envia mensagens chat -> usuario
+				s.mutex.Lock()
 				channel, ok := s.userChannels[username]
 				if ok {
 					close(channel)
 				}
+				s.mutex.Unlock()
 			}
 
 			if err != io.EOF {
@@ -94,10 +98,11 @@ func (s *MessagingServer) TalkAndListen(stream pb.MessagingServer_TalkAndListenS
 		// primeira mensagem, pega o username e inicia
 		// outra go routine para enviar mensagens chat -> usuario
 		if firstMessage {
+			firstMessage = false
+
 			if in.UserCredential != nil {
 				username = in.UserCredential.UserName
 				go s.sendMessages(username, stream)
-				firstMessage = false
 			} else {
 				log.Printf("User %s disconnect by: without credential.\n", username)
 				break
