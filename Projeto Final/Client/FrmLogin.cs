@@ -68,7 +68,11 @@ namespace Client {
 			this.Destroy();
 
 		}
-
+      
+		protected void OnTxtKeyReleaseEvent(object o, Gtk.KeyReleaseEventArgs args) {
+			if (args.Event.Key == Gdk.Key.Return) OnBtSignUpClicked(o, args);
+		}
+  
 	}
 
 }

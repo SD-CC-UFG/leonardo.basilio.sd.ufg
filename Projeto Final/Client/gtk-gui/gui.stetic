@@ -47,6 +47,7 @@
                     <property name="CanFocus">True</property>
                     <property name="IsEditable">True</property>
                     <property name="InvisibleChar">•</property>
+                    <signal name="KeyReleaseEvent" handler="OnTxtKeyReleaseEvent" />
                   </widget>
                   <packing>
                     <property name="Position">1</property>
@@ -75,6 +76,7 @@
                     <property name="IsEditable">True</property>
                     <property name="Visibility">False</property>
                     <property name="InvisibleChar">•</property>
+                    <signal name="KeyReleaseEvent" handler="OnTxtKeyReleaseEvent" />
                   </widget>
                   <packing>
                     <property name="Position">3</property>

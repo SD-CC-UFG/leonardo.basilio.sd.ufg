@@ -140,6 +140,8 @@ namespace Client
 			this.DefaultWidth = 289;
 			this.DefaultHeight = 274;
 			this.Show();
+			this.txtUserName.KeyReleaseEvent += new global::Gtk.KeyReleaseEventHandler(this.OnTxtKeyReleaseEvent);
+			this.txtPassword.KeyReleaseEvent += new global::Gtk.KeyReleaseEventHandler(this.OnTxtKeyReleaseEvent);
 			this.btSignIn.Clicked += new global::System.EventHandler(this.OnBtSignInClicked);
 			this.btSignUp.Clicked += new global::System.EventHandler(this.OnBtSignUpClicked);
 			this.btQuit.Clicked += new global::System.EventHandler(this.OnBtQuitClicked);
