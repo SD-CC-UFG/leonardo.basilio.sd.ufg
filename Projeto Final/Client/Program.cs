@@ -9,7 +9,7 @@ namespace Client {
 			
             Application.Init();
             
-			GLib.ExceptionManager.UnhandledException += HandleException;
+			GLib.ExceptionManager.UnhandledException += (ex) => MessageBox.ShowError(null, ex.ExceptionObject as Exception);
 
 			var win = new FrmLogin();
             win.Show();
@@ -17,22 +17,6 @@ namespace Client {
             Application.Run();
 
         }
-
-		private static void HandleException(UnhandledExceptionEventArgs ex){
-
-			var targetException = ex.ExceptionObject as System.Reflection.TargetInvocationException;
-
-			if (targetException != null) {
-                
-				MessageBox.ShowError(null, targetException.InnerException.Message);
-				 
-			} else {
-
-				MessageBox.ShowError(null, ex.ExceptionObject.ToString());
-
-			}
-
-		}
 
     }
 

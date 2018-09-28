@@ -1,78 +1,119 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Chat.Grpc;
+using Grpc.Core;
 
 namespace Client {
 
 	public partial class FrmLogin : Gtk.Window {
 
+		private bool mainWindowShown = false;
+
 		public FrmLogin() : base(Gtk.WindowType.Toplevel) {
-			
+
 			this.Build();
-            
-		}
-  
-		protected void OnBtQuitClicked(object sender, EventArgs e) {
 
-			Gtk.Application.Quit();
+			this.Destroyed += (o, args) => { if (!this.mainWindowShown) Gtk.Application.Quit(); };
 
 		}
 
-		protected void OnBtSignUpClicked(object sender, EventArgs e) {
+		protected void OnTxtKeyReleaseEvent(object o, Gtk.KeyReleaseEventArgs args) {
 
-			var auth = Services.GetAuthentication();
+			if (args.Event.Key == Gdk.Key.Return) {
 
-			var credential = auth.SignUp(new UserLogin() {
-                UserName = txtUserName.Text,
-                Password = txtPassword.Text
-			});
-         
-			if(credential.Error != ""){
+				OnBtSignInClicked(o, args);
 
-				MessageBox.ShowError(this, credential.Error);
+			} else if (args.Event.Key == Gdk.Key.Escape) {
 
-			}else{
-
-				this.ShowMain(credential);
+				this.Destroy();
 
 			}
 
 		}
 
-		protected void OnBtSignInClicked(object sender, EventArgs e) {
+		protected void OnBtQuitClicked(object sender, EventArgs e) {
+			this.Destroy();
+		}
 
-			var auth = Services.GetAuthentication();
+		protected void OnBtSignUpClicked(object sender, EventArgs e) {
 
-			var credential = auth.Authenticate(new UserLogin() {
-                UserName = txtUserName.Text,
-                Password = txtPassword.Text
-            });
+			this.ProcessLogin(async (auth) => {
 
-            if (credential.Error != "") {
+				return await auth.SignUpAsync(new UserLogin() {
+					UserName = txtUserName.Text,
+					Password = txtPassword.Text
+				});
 
-                MessageBox.ShowError(this, credential.Error);
-
-            } else {
-
-                this.ShowMain(credential);
-
-            }
+			});
 
 		}
 
-		private void ShowMain(UserCredential credential){
+		protected void OnBtSignInClicked(object sender, EventArgs e) {
+
+			this.ProcessLogin(async (auth) => {
+
+				return await auth.AuthenticateAsync(new UserLogin() {
+					UserName = txtUserName.Text,
+					Password = txtPassword.Text
+				});
+
+			});
+
+		}
+
+		private void ProcessLogin(Func<AuthServer.AuthServerClient, Task<UserCredential>> handler) {
+
+			this.LockWindow(true);
+
+			Task.Run(async () => {
+
+				try {
+
+					var auth = await Services.GetAuthentication();
+					var credential = await handler(auth);
+
+					if (credential.Error != "") {
+
+						throw new ArgumentException(credential.Error);
+
+					}
+
+					Gtk.Application.Invoke((sender, e) => this.ShowMain(credential));
+
+				} catch (Exception ex) {
+
+					Gtk.Application.Invoke((sender, e) => {
+
+						MessageBox.ShowError(this, ex);
+
+						this.LockWindow(false);
+
+					});
+
+				}
+
+			});
+
+		}
+
+		private void ShowMain(UserCredential credential) {
 
 			var main = new FrmMain(credential);
 
 			main.Show();
 
+			this.mainWindowShown = true;
+
 			this.Destroy();
 
 		}
-      
-		protected void OnTxtKeyReleaseEvent(object o, Gtk.KeyReleaseEventArgs args) {
-			if (args.Event.Key == Gdk.Key.Return) OnBtSignUpClicked(o, args);
+
+		private void LockWindow(bool flag) {
+
+			FrForm.Sensitive = !flag;
+
 		}
-  
+
 	}
 
 }

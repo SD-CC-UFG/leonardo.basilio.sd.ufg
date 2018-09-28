@@ -40,9 +40,6 @@
       <Package>glib-sharp-2.0</Package>
       <SpecificVersion>False</SpecificVersion>
     </Reference>
-    <Reference Include="glade-sharp, Version=2.4.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
-      <SpecificVersion>False</SpecificVersion>
-    </Reference>
     <Reference Include="pango-sharp, Version=2.4.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
       <Package>gtk-sharp-2.0</Package>
       <SpecificVersion>False</SpecificVersion>
