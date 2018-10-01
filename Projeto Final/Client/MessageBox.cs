@@ -1,16 +1,32 @@
 ﻿using System;
 
 namespace Client {
-	
-    internal static class MessageBox {
-        
-		public static void ShowError(Gtk.Window parent, string message){
 
-			var dialog = new Gtk.MessageDialog(parent, 
-			                                   Gtk.DialogFlags.Modal, 
-			                                   Gtk.MessageType.Error, 
-			                                   Gtk.ButtonsType.Ok, 
-			                                   message);
+	internal static class MessageBox {
+
+		public static void ShowError(Gtk.Window parent, Exception ex) {
+
+			var targetException = ex as System.Reflection.TargetInvocationException;
+
+			if (targetException != null) {
+
+				MessageBox.ShowError(null, targetException.InnerException.Message);
+
+			} else {
+
+				MessageBox.ShowError(null, ex.Message);
+
+			}
+
+		}
+
+		public static void ShowError(Gtk.Window parent, string message) {
+
+			var dialog = new Gtk.MessageDialog(parent,
+											   Gtk.DialogFlags.Modal,
+											   Gtk.MessageType.Error,
+											   Gtk.ButtonsType.Ok,
+											   message);
 
 			dialog.Run();
 
@@ -20,18 +36,18 @@ namespace Client {
 
 		public static void ShowInfo(Gtk.Window parent, string message) {
 
-            var dialog = new Gtk.MessageDialog(parent,
-                                               Gtk.DialogFlags.Modal,
-                                               Gtk.MessageType.Info,
-                                               Gtk.ButtonsType.Ok,
-                                               message);
+			var dialog = new Gtk.MessageDialog(parent,
+											   Gtk.DialogFlags.Modal,
+											   Gtk.MessageType.Info,
+											   Gtk.ButtonsType.Ok,
+											   message);
 
-            dialog.Run();
+			dialog.Run();
 
-            dialog.Destroy();
+			dialog.Destroy();
 
-        }
+		}
 
-    }
+	}
 
 }

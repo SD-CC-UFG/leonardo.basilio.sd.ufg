@@ -5,144 +5,173 @@
   </configuration>
   <import>
     <widget-library name="../bin/Debug/Client.exe" internal="true" />
+    <widget-library name="../../../../../../../usr/lib/monodevelop/AddIns/MonoDevelop.GtkCore/libstetic.dll" />
   </import>
-  <widget class="Gtk.Window" id="Client.FrmLogin" design-size="289 274">
+  <widget class="Gtk.Window" id="Client.FrmLogin" design-size="300 301">
     <property name="MemberName" />
+    <property name="WidthRequest">250</property>
     <property name="Title" translatable="yes">Login</property>
     <property name="WindowPosition">Center</property>
+    <property name="Resizable">False</property>
     <child>
-      <widget class="Gtk.Frame" id="frame2">
+      <widget class="Gtk.VBox" id="vbox1">
         <property name="MemberName" />
-        <property name="ShadowType">Out</property>
-        <property name="BorderWidth">10</property>
+        <property name="Spacing">6</property>
         <child>
-          <widget class="Gtk.Alignment" id="GtkAlignment">
+          <widget class="Gtk.Frame" id="FrForm">
             <property name="MemberName" />
-            <property name="Xalign">0</property>
-            <property name="Yalign">0</property>
-            <property name="LeftPadding">12</property>
-            <property name="TopPadding">12</property>
-            <property name="RightPadding">12</property>
-            <property name="BottomPadding">12</property>
+            <property name="ShadowType">Out</property>
+            <property name="BorderWidth">10</property>
             <child>
-              <widget class="Gtk.VBox" id="vbox1">
+              <widget class="Gtk.Alignment" id="GtkAlignment">
                 <property name="MemberName" />
-                <property name="Spacing">6</property>
+                <property name="Xalign">0</property>
+                <property name="Yalign">0</property>
+                <property name="LeftPadding">12</property>
+                <property name="TopPadding">12</property>
+                <property name="RightPadding">12</property>
+                <property name="BottomPadding">12</property>
                 <child>
-                  <widget class="Gtk.Label" id="label1">
+                  <widget class="Gtk.VBox" id="vbox2">
                     <property name="MemberName" />
-                    <property name="Xalign">0</property>
-                    <property name="LabelProp" translatable="yes">Usuário:</property>
+                    <property name="Spacing">6</property>
+                    <child>
+                      <widget class="Gtk.Label" id="label1">
+                        <property name="MemberName" />
+                        <property name="Xalign">0</property>
+                        <property name="LabelProp" translatable="yes">Usuário:</property>
+                      </widget>
+                      <packing>
+                        <property name="Position">0</property>
+                        <property name="AutoSize">True</property>
+                        <property name="Expand">False</property>
+                        <property name="Fill">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <widget class="Gtk.Entry" id="txtUserName">
+                        <property name="MemberName" />
+                        <property name="CanFocus">True</property>
+                        <property name="IsEditable">True</property>
+                        <property name="InvisibleChar">•</property>
+                        <signal name="KeyReleaseEvent" handler="OnTxtKeyReleaseEvent" />
+                      </widget>
+                      <packing>
+                        <property name="Position">1</property>
+                        <property name="AutoSize">True</property>
+                        <property name="Expand">False</property>
+                        <property name="Fill">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <widget class="Gtk.Label" id="label2">
+                        <property name="MemberName" />
+                        <property name="Xalign">0</property>
+                        <property name="LabelProp" translatable="yes">Senha:</property>
+                      </widget>
+                      <packing>
+                        <property name="Position">2</property>
+                        <property name="AutoSize">True</property>
+                        <property name="Expand">False</property>
+                        <property name="Fill">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <widget class="Gtk.Entry" id="txtPassword">
+                        <property name="MemberName" />
+                        <property name="CanFocus">True</property>
+                        <property name="IsEditable">True</property>
+                        <property name="Visibility">False</property>
+                        <property name="InvisibleChar">•</property>
+                        <signal name="KeyReleaseEvent" handler="OnTxtKeyReleaseEvent" />
+                      </widget>
+                      <packing>
+                        <property name="Position">3</property>
+                        <property name="AutoSize">True</property>
+                        <property name="Expand">False</property>
+                        <property name="Fill">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <widget class="Gtk.Button" id="btSignIn">
+                        <property name="MemberName" />
+                        <property name="CanFocus">True</property>
+                        <property name="Type">TextOnly</property>
+                        <property name="Label" translatable="yes">Entrar</property>
+                        <property name="UseUnderline">True</property>
+                        <signal name="Clicked" handler="OnBtSignInClicked" />
+                      </widget>
+                      <packing>
+                        <property name="Position">4</property>
+                        <property name="AutoSize">True</property>
+                        <property name="Expand">False</property>
+                        <property name="Fill">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <widget class="Gtk.Button" id="btSignUp">
+                        <property name="MemberName" />
+                        <property name="CanFocus">True</property>
+                        <property name="Type">TextOnly</property>
+                        <property name="Label" translatable="yes">Cadastrar-se</property>
+                        <property name="UseUnderline">True</property>
+                        <signal name="Clicked" handler="OnBtSignUpClicked" />
+                      </widget>
+                      <packing>
+                        <property name="Position">5</property>
+                        <property name="AutoSize">True</property>
+                        <property name="Expand">False</property>
+                        <property name="Fill">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <widget class="Gtk.Button" id="btQuit">
+                        <property name="MemberName" />
+                        <property name="CanFocus">True</property>
+                        <property name="Type">TextOnly</property>
+                        <property name="Label" translatable="yes">Sair</property>
+                        <property name="UseUnderline">True</property>
+                        <signal name="Clicked" handler="OnBtQuitClicked" />
+                      </widget>
+                      <packing>
+                        <property name="Position">6</property>
+                        <property name="AutoSize">True</property>
+                        <property name="Expand">False</property>
+                        <property name="Fill">False</property>
+                      </packing>
+                    </child>
                   </widget>
-                  <packing>
-                    <property name="Position">0</property>
-                    <property name="AutoSize">True</property>
-                    <property name="Expand">False</property>
-                    <property name="Fill">False</property>
-                  </packing>
-                </child>
-                <child>
-                  <widget class="Gtk.Entry" id="txtUserName">
-                    <property name="MemberName" />
-                    <property name="CanFocus">True</property>
-                    <property name="IsEditable">True</property>
-                    <property name="InvisibleChar">•</property>
-                  </widget>
-                  <packing>
-                    <property name="Position">1</property>
-                    <property name="AutoSize">True</property>
-                    <property name="Expand">False</property>
-                    <property name="Fill">False</property>
-                  </packing>
-                </child>
-                <child>
-                  <widget class="Gtk.Label" id="label2">
-                    <property name="MemberName" />
-                    <property name="Xalign">0</property>
-                    <property name="LabelProp" translatable="yes">Senha:</property>
-                  </widget>
-                  <packing>
-                    <property name="Position">2</property>
-                    <property name="AutoSize">True</property>
-                    <property name="Expand">False</property>
-                    <property name="Fill">False</property>
-                  </packing>
-                </child>
-                <child>
-                  <widget class="Gtk.Entry" id="txtPassword">
-                    <property name="MemberName" />
-                    <property name="CanFocus">True</property>
-                    <property name="IsEditable">True</property>
-                    <property name="Visibility">False</property>
-                    <property name="InvisibleChar">•</property>
-                  </widget>
-                  <packing>
-                    <property name="Position">3</property>
-                    <property name="AutoSize">True</property>
-                    <property name="Expand">False</property>
-                    <property name="Fill">False</property>
-                  </packing>
-                </child>
-                <child>
-                  <widget class="Gtk.Button" id="btSignIn">
-                    <property name="MemberName" />
-                    <property name="CanFocus">True</property>
-                    <property name="Type">TextOnly</property>
-                    <property name="Label" translatable="yes">Entrar</property>
-                    <property name="UseUnderline">True</property>
-                    <signal name="Clicked" handler="OnBtSignInClicked" />
-                  </widget>
-                  <packing>
-                    <property name="Position">4</property>
-                    <property name="AutoSize">True</property>
-                    <property name="Expand">False</property>
-                    <property name="Fill">False</property>
-                  </packing>
-                </child>
-                <child>
-                  <widget class="Gtk.Button" id="btSignUp">
-                    <property name="MemberName" />
-                    <property name="CanFocus">True</property>
-                    <property name="Type">TextOnly</property>
-                    <property name="Label" translatable="yes">Cadastrar-se</property>
-                    <property name="UseUnderline">True</property>
-                    <signal name="Clicked" handler="OnBtSignUpClicked" />
-                  </widget>
-                  <packing>
-                    <property name="Position">5</property>
-                    <property name="AutoSize">True</property>
-                    <property name="Expand">False</property>
-                    <property name="Fill">False</property>
-                  </packing>
-                </child>
-                <child>
-                  <widget class="Gtk.Button" id="btQuit">
-                    <property name="MemberName" />
-                    <property name="CanFocus">True</property>
-                    <property name="Type">TextOnly</property>
-                    <property name="Label" translatable="yes">Sair</property>
-                    <property name="UseUnderline">True</property>
-                    <signal name="Clicked" handler="OnBtQuitClicked" />
-                  </widget>
-                  <packing>
-                    <property name="Position">6</property>
-                    <property name="AutoSize">True</property>
-                    <property name="Expand">False</property>
-                    <property name="Fill">False</property>
-                  </packing>
                 </child>
               </widget>
             </child>
-          </widget>
-        </child>
-        <child>
-          <widget class="Gtk.Label" id="GtkLabel2">
-            <property name="MemberName" />
-            <property name="LabelProp" translatable="yes">&lt;b&gt;Login&lt;/b&gt;</property>
-            <property name="UseMarkup">True</property>
+            <child>
+              <widget class="Gtk.Label" id="GtkLabel3">
+                <property name="MemberName" />
+                <property name="LabelProp" translatable="yes">&lt;b&gt;Login&lt;/b&gt;</property>
+                <property name="UseMarkup">True</property>
+              </widget>
+              <packing>
+                <property name="type">label_item</property>
+              </packing>
+            </child>
           </widget>
           <packing>
-            <property name="type">label_item</property>
+            <property name="Position">0</property>
+            <property name="AutoSize">True</property>
+            <property name="Expand">False</property>
+            <property name="Fill">False</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="Gtk.Statusbar" id="statusbar1">
+            <property name="MemberName" />
+            <property name="Spacing">6</property>
+          </widget>
+          <packing>
+            <property name="Position">1</property>
+            <property name="AutoSize">True</property>
+            <property name="Expand">False</property>
+            <property name="Fill">False</property>
           </packing>
         </child>
       </widget>

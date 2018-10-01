@@ -35,12 +35,12 @@ namespace Client {
         }
 
 		private void StartChat(){
-
-			var messaging = Services.GetMessaging();
-
-            streamingCall = messaging.TalkAndListen();
-
+        
 			Task.Run(async () => {
+
+				var messaging = await Services.GetMessaging();
+
+                streamingCall = messaging.TalkAndListen();
 
 				var cancellationSource = new CancellationTokenSource();
 				var stream = streamingCall.ResponseStream;
