@@ -5,18 +5,34 @@ import "AuthServer.proto";
 package Chat.Grpc;
 option go_package = "grpc";
 
+enum ChatMessageType {
+    TEXT = 0;
+    CONTROL = 1;
+}
+
+enum ControlMessageType {
+    JOINED = 0;
+    AWAY = 1;
+    NAWAY = 2;
+    QUITTED = 3;
+}
+
+message ControlMessage {
+    ControlMessageType type = 1;
+}
+
 message TextMessage {
     string text = 1;
 }
 
 message ChatMessage {
-    enum ChatMessageType {
-        TEXT = 0;
-    }
     ChatMessageType type = 1;
     UserCredential user_credential = 2; // somente para envio
     uint32 date_time = 3;
-    TextMessage text = 4;
+    oneof payload {
+        TextMessage text = 4;
+        ControlMessage control = 5;
+    }
 }
 
 service MessagingServer {
