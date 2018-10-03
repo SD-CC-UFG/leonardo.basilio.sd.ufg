@@ -29,6 +29,7 @@ message ChatMessage {
     ChatMessageType type = 1;
     UserCredential user_credential = 2; // somente para envio
     uint32 date_time = 3;
+    bytes signature = 6;
     oneof payload {
         TextMessage text = 4;
         ControlMessage control = 5;
