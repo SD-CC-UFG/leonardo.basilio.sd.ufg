@@ -18,9 +18,9 @@ func main() {
 		port = "7777"
 	}
 
-	listen, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
+	listen, err := net.Listen("tcp", fmt.Sprintf(":%v", port))
 	if err != nil {
-		log.Fatalf("Falha na abertura de servidor TCP.\n")
+		log.Fatalf("Falha na abertura de servidor TCP: %v.\n", err)
 	}
 
 	defer listen.Close()
