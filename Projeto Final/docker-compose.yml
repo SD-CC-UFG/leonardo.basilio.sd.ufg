@@ -1,0 +1,16 @@
+version: '3'
+services:
+  messaging:
+    build: ./MessagingServer
+    ports:
+      - "8888:8888"
+  naming:
+    build: ./NamingServer
+    ports:
+      - "7777:7777"
+  auth:
+    build: ./AuthServer
+    ports:
+      - "50001:50001"
+  mongo:
+    image: "mongo"

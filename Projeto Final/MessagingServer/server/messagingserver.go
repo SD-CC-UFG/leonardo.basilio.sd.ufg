@@ -71,41 +71,43 @@ func (s *MessagingServer) sendMessages(username string, stream pb.MessagingServe
 
 func (s *MessagingServer) TalkAndListen(stream pb.MessagingServer_TalkAndListenServer) error {
 	var username string
-	var firstMessage bool = true
+
+	in, err := stream.Recv()
+
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	if in.UserCredential != nil {
+		if in.Type != pb.ChatMessageType_CONTROL {
+			log.Printf("First message is not a control message\n")
+			return nil
+		}
+		username = in.UserCredential.UserName
+		go s.sendMessages(username, stream)
+	} else {
+		log.Printf("User %s disconnect by: without credential.\n", username)
+		return nil
+	}
 
 	for {
 		in, err := stream.Recv()
 		if err == io.EOF || err != nil {
-			if !firstMessage {
-				// em caso de erro (ou EOF), fecha o channel do usuario
-				// liberando go routine que envia mensagens chat -> usuario
-				s.mutex.Lock()
-				channel, ok := s.userChannels[username]
-				if ok {
-					close(channel)
-				}
-				s.mutex.Unlock()
+			// em caso de erro (ou EOF), fecha o channel do usuario
+			// liberando go routine que envia mensagens chat -> usuario
+			s.mutex.Lock()
+			channel, ok := s.userChannels[username]
+			if ok {
+				close(channel)
 			}
+			s.mutex.Unlock()
 
 			if err != io.EOF {
 				log.Println(err)
 				return err
 			} else {
 				return nil
-			}
-		}
-
-		// primeira mensagem, pega o username e inicia
-		// outra go routine para enviar mensagens chat -> usuario
-		if firstMessage {
-			firstMessage = false
-
-			if in.UserCredential != nil {
-				username = in.UserCredential.UserName
-				go s.sendMessages(username, stream)
-			} else {
-				log.Printf("User %s disconnect by: without credential.\n", username)
-				break
 			}
 		}
 
