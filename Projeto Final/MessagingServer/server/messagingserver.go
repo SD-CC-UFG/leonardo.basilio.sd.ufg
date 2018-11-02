@@ -80,8 +80,8 @@ func (s *MessagingServer) TalkAndListen(stream pb.MessagingServer_TalkAndListenS
 	}
 
 	if in.UserCredential != nil {
-		if in.Type != pb.ChatMessageType_CONTROL {
-			log.Printf("First message is not a control message\n")
+		if in.Type != pb.ChatMessageType_CONTROL || in.GetControl().Type != pb.ControlMessageType_JOINED {
+			log.Printf("First message is not a control message of type JOINED.\n")
 			return nil
 		}
 		username = in.UserCredential.UserName

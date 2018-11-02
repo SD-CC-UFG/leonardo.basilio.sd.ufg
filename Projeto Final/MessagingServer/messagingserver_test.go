@@ -47,7 +47,13 @@ func createClientConnTest(username string, parallel bool) func(t *testing.T) {
 			chatMessage := &pb.ChatMessage{}
 			chatMessage.UserCredential = &pb.UserCredential{UserName: username}
 			chatMessage.DateTime = uint32(time.Now().Unix())
-			chatMessage.Text = &pb.TextMessage{Text: "Ola a todos!"}
+			if i == 0 {
+				chatMessage.Type = pb.ChatMessageType_CONTROL
+				chatMessage.Payload = &pb.ChatMessage_Control{Control: &pb.ControlMessage{Type: pb.ControlMessageType_JOINED}}
+			} else {
+				chatMessage.Type = pb.ChatMessageType_TEXT
+				chatMessage.Payload = &pb.ChatMessage_Text{Text: &pb.TextMessage{Text: "Ola a todos!"}}
+			}
 
 			if err := stream.Send(chatMessage); err != nil {
 				t.Fatalf("Failed to send a message: %v", err)
