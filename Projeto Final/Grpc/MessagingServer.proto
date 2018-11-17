@@ -8,13 +8,14 @@ option go_package = "grpc";
 enum ChatMessageType {
     TEXT = 0;
     CONTROL = 1;
+    ERROR = 2;
 }
 
 enum ControlMessageType {
-    JOINED = 0;
+    JOINED = 0; // subscribe
     AWAY = 1;
     NAWAY = 2;
-    QUITTED = 3;
+    QUITTED = 3; // unsubscribe
 }
 
 message ControlMessage {
@@ -25,14 +26,20 @@ message TextMessage {
     string text = 1;
 }
 
+message ErrorMessage {
+    string text = 1;
+}
+
 message ChatMessage {
     ChatMessageType type = 1;
-    UserCredential user_credential = 2; // somente para envio
-    uint32 date_time = 3;
+    UserCredential user_credential = 2; // user who generated the message
+    uint32 timestamp = 3;
     bytes signature = 6;
+    string topic = 7; // the topic in which the message was published
     oneof payload {
         TextMessage text = 4;
         ControlMessage control = 5;
+        ErrorMessage error = 8;
     }
 }
 

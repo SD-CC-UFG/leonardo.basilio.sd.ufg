@@ -8,105 +8,265 @@ namespace Client {
 
     public partial class FrmMain : Gtk.Window {
 
-		private static readonly DateTime UNIX_EPOCH = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        private enum ClientStatus {
+            Disconnected = 0,
+            Connected = 1
+        }
 
-		private UserCredential credential;
+        private UserCredential credential;
+        private ClientStatus currentStatus;
 
-		private AsyncDuplexStreamingCall<ChatMessage, ChatMessage> streamingCall;
-        
+        private AsyncDuplexStreamingCall<ChatMessage, ChatMessage> streamingCall;
+
+        //======================================
+        //======================================
+
+        private Gtk.TextTag textTagError = new Gtk.TextTag(null) {
+            Weight = Pango.Weight.Bold,
+            Foreground = "red"
+        };
+
+        private Gtk.TextTag textTagSender = new Gtk.TextTag(null) {
+            Weight = Pango.Weight.Bold,
+            Foreground = "blue"
+        };
+
+        //======================================
+        //======================================
+
         public FrmMain(UserCredential credential) : base(Gtk.WindowType.Toplevel) {
-			
+
             this.Build();
 
-			this.credential = credential;           
+            this.credential = credential;
 
-			this.Focus = txtMessage;
-            
-			lblUserName.Text = credential.UserName + ":";
+            this.Focus = txtMessage;
+
+            lblUserName.Text = credential.UserName + ":";
 
             //============================
 
-			this.DeleteEvent += (o, args) => Gtk.Application.Quit();
+            this.DeleteEvent += (o, args) => Gtk.Application.Quit();
 
-			//============================
+            //============================
 
-			this.StartChat();
+            txtRoom.Buffer.TagTable.Add(textTagError);
+            txtRoom.Buffer.TagTable.Add(textTagSender);
+
+            //============================
+
+            this.StartChat();
 
         }
 
-		private void StartChat(){
-        
-			Task.Run(async () => {
+        private void StartChat() {
 
-				var messaging = await Services.GetMessaging();
+            this.SetStatus(ClientStatus.Disconnected);
+
+            Task.Run(async () => {
+
+                var messaging = await Services.GetMessaging();
 
                 streamingCall = messaging.TalkAndListen();
 
-				var cancellationSource = new CancellationTokenSource();
-				var stream = streamingCall.ResponseStream;
+                Gtk.Application.Invoke((sender, e) => this.SetStatus(ClientStatus.Connected));
 
-                while(await stream.MoveNext(cancellationSource.Token)){
+                var cancellationSource = new CancellationTokenSource();
+                var stream = streamingCall.ResponseStream;
 
-					ProcessIncomingMessage(stream.Current);
+                while (await stream.MoveNext(cancellationSource.Token)) {
 
-				}
+                    Gtk.Application.Invoke((sender, e) => this.ProcessMessage(stream.Current));
 
-			});
+                }
 
-		}
+            });
 
-		private void SendMessage() {
+        }
+
+        private void SendUserMessage() {
 
             var messageString = txtMessage.Text.Trim();
 
-            if (messageString != "") {
+            txtMessage.Text = "";
 
-				txtMessage.Text = "";
+            if (!this.ParseCommand(messageString)) {
 
-				streamingCall.RequestStream.WriteAsync(new ChatMessage() {
-					DateTime = (uint) DateTime.Now.Subtract(UNIX_EPOCH).TotalSeconds,
-                    Type = ChatMessage.Types.ChatMessageType.Text,
-					Text = new TextMessage(){
-						Text = messageString
-					},
+                this.SendChatMessage(new ChatMessage() {
+                    Type = ChatMessageType.Text,
+                    Text = new TextMessage() {
+                        Text = messageString
+                    },
                     UserCredential = credential
-				}).Wait();
+                });
 
             }
 
         }
 
-		private void ProcessIncomingMessage(ChatMessage message){
+        private void SendChatMessage(ChatMessage message) {
 
-			var messageDateTime = UNIX_EPOCH.AddSeconds(message.DateTime);
+            if (this.IsConnected()) {
 
-			Gtk.Application.Invoke((object sender, EventArgs e) => {
+                streamingCall.RequestStream.WriteAsync(message);
 
-                var buffer = txtRoom.Buffer;
-                var iter = buffer.EndIter;
+            }
 
-                var tag = new Gtk.TextTag(null);
-                tag.Weight = Pango.Weight.Bold;
-                tag.Foreground = "blue";
+        }
 
-                buffer.TagTable.Add(tag);
-                buffer.InsertWithTags(ref iter, messageDateTime.ToShortTimeString() + " - " + message.UserCredential.UserName + "\n", tag);
-				buffer.Insert(ref iter, message.Text.Text + "\n\n");
+        private bool ParseCommand(string message) {
 
-				txtRoom.ScrollToMark(buffer.InsertMark, 0, true, 0, 1);
+            if (message.Length > 0 && message[0] == '/') {
 
+                var words = message.Split(' ');
+
+                switch (words[0].ToLower()) {
+
+                    case "/join":
+
+                        if (words.Length != 2) {
+
+                            RaiseUserError("Sintaxe do comando: /join <canal>");
+
+                        } else if (words[1][0] != '#') {
+
+                            RaiseUserError("Nomes de canais devem começar com #");
+
+                        } else if (words[1].Length < 2) {
+
+                            RaiseUserError("Canal inválido");
+
+                        } else {
+
+                            JoinChannel(words[1].ToLower());
+
+                        }
+
+                        break;
+
+                    default:
+
+                        if (message.Length > 1 && message[1] == '/') return false;
+
+                        RaiseUserError("Comando desconhecido.");
+
+                        break;
+
+                }
+
+                return true;
+
+            }
+
+            return message == "";
+
+        }
+
+        private void ProcessMessage(ChatMessage message) {
+
+            var messageTime = message.DateTime.ToShortTimeString();
+
+            var buffer = txtRoom.Buffer;
+            var iter = buffer.EndIter;
+
+            switch (message.Type) {
+
+                case ChatMessageType.Error:
+
+                    buffer.InsertWithTags(ref iter, messageTime + " - " + message.Error.Text + "\n\n", textTagError);
+
+                    break;
+
+                case ChatMessageType.Text:
+
+                    buffer.InsertWithTags(ref iter, messageTime + " - " + message.UserCredential.UserName + "\n", textTagSender);
+                    buffer.Insert(ref iter, message.Text.Text + "\n\n");
+
+                    break;
+
+                default:
+
+                    return;
+
+            }
+
+            txtRoom.ScrollToMark(buffer.InsertMark, 0, true, 0, 1);
+
+        }
+
+        protected void OnBtSendMessageClicked(object sender, EventArgs e) {
+            SendUserMessage();
+        }
+
+        protected void OnTxtMessageKeyReleaseEvent(object o, Gtk.KeyReleaseEventArgs args) {
+            if (args.Event.Key == Gdk.Key.Return) SendUserMessage();
+        }
+
+        private void RaiseUserError(string message) {
+
+            ProcessMessage(new ChatMessage() {
+                Type = ChatMessageType.Error,
+                Error = new ErrorMessage() {
+                    Text = message
+                }
             });
-			
-		}
 
-		protected void OnBtSendMessageClicked(object sender, EventArgs e) {
-			SendMessage();
-		}
+        }
 
-		protected void OnTxtMessageKeyReleaseEvent(object o, Gtk.KeyReleaseEventArgs args) {
-			if (args.Event.Key == Gdk.Key.Return) SendMessage();
-		}
+        private void SetStatus(ClientStatus status) {
 
-	}
+            var message = "";
+
+            this.currentStatus = status;
+
+            switch (status) {
+
+                case ClientStatus.Disconnected:
+
+                    message = "Conectando...";
+                    break;
+
+                default:
+
+                    imgLoading.Visible = false;
+                    lblStatus.Text = "";
+
+                    return;
+
+            }
+
+            imgLoading.Visible = true;
+            lblStatus.Text = message;
+
+        }
+
+        private bool IsConnected() {
+
+            if (this.currentStatus < ClientStatus.Connected) {
+
+                RaiseUserError("Você não está conectado.");
+
+                return false;
+
+            }
+
+            return true;
+
+        }
+
+        private void JoinChannel(string channelName) {
+
+            this.SendChatMessage(new ChatMessage() {
+                Type = ChatMessageType.Control,
+                UserCredential = this.credential,
+                Topic = channelName,
+                Control = new ControlMessage() {
+                    Type = ControlMessageType.Joined
+                }
+            });
+
+        }
+
+    }
 
 }

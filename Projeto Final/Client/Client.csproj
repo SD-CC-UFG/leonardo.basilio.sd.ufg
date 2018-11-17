@@ -64,6 +64,9 @@
     <EmbeddedResource Include="gtk-gui\gui.stetic">
       <LogicalName>gui.stetic</LogicalName>
     </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Preloader.png">
+      <LogicalName>Client.Resources.Preloader</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="gtk-gui\generated.cs" />
@@ -81,9 +84,15 @@
     <Compile Include="FrmMain.cs" />
     <Compile Include="Services.cs" />
     <Compile Include="gtk-gui\Client.FrmMain.cs" />
+    <Compile Include="Preloader.cs" />
+    <Compile Include="gtk-gui\Client.Preloader.cs" />
+    <Compile Include="ChatMessage.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Resources\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="packages\Grpc.Core.1.15.0\build\net45\Grpc.Core.targets" Condition="Exists('packages\Grpc.Core.1.15.0\build\net45\Grpc.Core.targets')" />

@@ -25,25 +25,185 @@ namespace Chat.Grpc {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "ChVNZXNzYWdpbmdTZXJ2ZXIucHJvdG8SCUNoYXQuR3JwYxoQQXV0aFNlcnZl",
-            "ci5wcm90byIbCgtUZXh0TWVzc2FnZRIMCgR0ZXh0GAEgASgJIs0BCgtDaGF0",
-            "TWVzc2FnZRI0CgR0eXBlGAEgASgOMiYuQ2hhdC5HcnBjLkNoYXRNZXNzYWdl",
-            "LkNoYXRNZXNzYWdlVHlwZRIyCg91c2VyX2NyZWRlbnRpYWwYAiABKAsyGS5D",
-            "aGF0LkdycGMuVXNlckNyZWRlbnRpYWwSEQoJZGF0ZV90aW1lGAMgASgNEiQK",
-            "BHRleHQYBCABKAsyFi5DaGF0LkdycGMuVGV4dE1lc3NhZ2UiGwoPQ2hhdE1l",
-            "c3NhZ2VUeXBlEggKBFRFWFQQADJYCg9NZXNzYWdpbmdTZXJ2ZXISRQoNVGFs",
-            "a0FuZExpc3RlbhIWLkNoYXQuR3JwYy5DaGF0TWVzc2FnZRoWLkNoYXQuR3Jw",
-            "Yy5DaGF0TWVzc2FnZSIAKAEwAWIGcHJvdG8z"));
+            "ci5wcm90byI9Cg5Db250cm9sTWVzc2FnZRIrCgR0eXBlGAEgASgOMh0uQ2hh",
+            "dC5HcnBjLkNvbnRyb2xNZXNzYWdlVHlwZSIbCgtUZXh0TWVzc2FnZRIMCgR0",
+            "ZXh0GAEgASgJIhwKDEVycm9yTWVzc2FnZRIMCgR0ZXh0GAEgASgJIqsCCgtD",
+            "aGF0TWVzc2FnZRIoCgR0eXBlGAEgASgOMhouQ2hhdC5HcnBjLkNoYXRNZXNz",
+            "YWdlVHlwZRIyCg91c2VyX2NyZWRlbnRpYWwYAiABKAsyGS5DaGF0LkdycGMu",
+            "VXNlckNyZWRlbnRpYWwSEQoJdGltZXN0YW1wGAMgASgNEhEKCXNpZ25hdHVy",
+            "ZRgGIAEoDBINCgV0b3BpYxgHIAEoCRImCgR0ZXh0GAQgASgLMhYuQ2hhdC5H",
+            "cnBjLlRleHRNZXNzYWdlSAASLAoHY29udHJvbBgFIAEoCzIZLkNoYXQuR3Jw",
+            "Yy5Db250cm9sTWVzc2FnZUgAEigKBWVycm9yGAggASgLMhcuQ2hhdC5HcnBj",
+            "LkVycm9yTWVzc2FnZUgAQgkKB3BheWxvYWQqMwoPQ2hhdE1lc3NhZ2VUeXBl",
+            "EggKBFRFWFQQABILCgdDT05UUk9MEAESCQoFRVJST1IQAipCChJDb250cm9s",
+            "TWVzc2FnZVR5cGUSCgoGSk9JTkVEEAASCAoEQVdBWRABEgkKBU5BV0FZEAIS",
+            "CwoHUVVJVFRFRBADMlgKD01lc3NhZ2luZ1NlcnZlchJFCg1UYWxrQW5kTGlz",
+            "dGVuEhYuQ2hhdC5HcnBjLkNoYXRNZXNzYWdlGhYuQ2hhdC5HcnBjLkNoYXRN",
+            "ZXNzYWdlIgAoATABQgZaBGdycGNiBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Chat.Grpc.AuthServerReflection.Descriptor, },
-          new pbr::GeneratedClrTypeInfo(null, new pbr::GeneratedClrTypeInfo[] {
+          new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Chat.Grpc.ChatMessageType), typeof(global::Chat.Grpc.ControlMessageType), }, new pbr::GeneratedClrTypeInfo[] {
+            new pbr::GeneratedClrTypeInfo(typeof(global::Chat.Grpc.ControlMessage), global::Chat.Grpc.ControlMessage.Parser, new[]{ "Type" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Chat.Grpc.TextMessage), global::Chat.Grpc.TextMessage.Parser, new[]{ "Text" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Chat.Grpc.ChatMessage), global::Chat.Grpc.ChatMessage.Parser, new[]{ "Type", "UserCredential", "DateTime", "Text" }, null, new[]{ typeof(global::Chat.Grpc.ChatMessage.Types.ChatMessageType) }, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Chat.Grpc.ErrorMessage), global::Chat.Grpc.ErrorMessage.Parser, new[]{ "Text" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Chat.Grpc.ChatMessage), global::Chat.Grpc.ChatMessage.Parser, new[]{ "Type", "UserCredential", "Timestamp", "Signature", "Topic", "Text", "Control", "Error" }, new[]{ "Payload" }, null, null)
           }));
     }
     #endregion
 
   }
+  #region Enums
+  public enum ChatMessageType {
+    [pbr::OriginalName("TEXT")] Text = 0,
+    [pbr::OriginalName("CONTROL")] Control = 1,
+    [pbr::OriginalName("ERROR")] Error = 2,
+  }
+
+  public enum ControlMessageType {
+    /// <summary>
+    /// subscribe
+    /// </summary>
+    [pbr::OriginalName("JOINED")] Joined = 0,
+    [pbr::OriginalName("AWAY")] Away = 1,
+    [pbr::OriginalName("NAWAY")] Naway = 2,
+    /// <summary>
+    /// unsubscribe
+    /// </summary>
+    [pbr::OriginalName("QUITTED")] Quitted = 3,
+  }
+
+  #endregion
+
   #region Messages
+  public sealed partial class ControlMessage : pb::IMessage<ControlMessage> {
+    private static readonly pb::MessageParser<ControlMessage> _parser = new pb::MessageParser<ControlMessage>(() => new ControlMessage());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<ControlMessage> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Chat.Grpc.MessagingServerReflection.Descriptor.MessageTypes[0]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public ControlMessage() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public ControlMessage(ControlMessage other) : this() {
+      type_ = other.type_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public ControlMessage Clone() {
+      return new ControlMessage(this);
+    }
+
+    /// <summary>Field number for the "type" field.</summary>
+    public const int TypeFieldNumber = 1;
+    private global::Chat.Grpc.ControlMessageType type_ = 0;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::Chat.Grpc.ControlMessageType Type {
+      get { return type_; }
+      set {
+        type_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as ControlMessage);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(ControlMessage other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (Type != other.Type) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (Type != 0) hash ^= Type.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+      if (Type != 0) {
+        output.WriteRawTag(8);
+        output.WriteEnum((int) Type);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      if (Type != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Type);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(ControlMessage other) {
+      if (other == null) {
+        return;
+      }
+      if (other.Type != 0) {
+        Type = other.Type;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            type_ = (global::Chat.Grpc.ControlMessageType) input.ReadEnum();
+            break;
+          }
+        }
+      }
+    }
+
+  }
+
   public sealed partial class TextMessage : pb::IMessage<TextMessage> {
     private static readonly pb::MessageParser<TextMessage> _parser = new pb::MessageParser<TextMessage>(() => new TextMessage());
     private pb::UnknownFieldSet _unknownFields;
@@ -52,7 +212,7 @@ namespace Chat.Grpc {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Chat.Grpc.MessagingServerReflection.Descriptor.MessageTypes[0]; }
+      get { return global::Chat.Grpc.MessagingServerReflection.Descriptor.MessageTypes[1]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -173,6 +333,135 @@ namespace Chat.Grpc {
 
   }
 
+  public sealed partial class ErrorMessage : pb::IMessage<ErrorMessage> {
+    private static readonly pb::MessageParser<ErrorMessage> _parser = new pb::MessageParser<ErrorMessage>(() => new ErrorMessage());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<ErrorMessage> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Chat.Grpc.MessagingServerReflection.Descriptor.MessageTypes[2]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public ErrorMessage() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public ErrorMessage(ErrorMessage other) : this() {
+      text_ = other.text_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public ErrorMessage Clone() {
+      return new ErrorMessage(this);
+    }
+
+    /// <summary>Field number for the "text" field.</summary>
+    public const int TextFieldNumber = 1;
+    private string text_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public string Text {
+      get { return text_; }
+      set {
+        text_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as ErrorMessage);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(ErrorMessage other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (Text != other.Text) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (Text.Length != 0) hash ^= Text.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+      if (Text.Length != 0) {
+        output.WriteRawTag(10);
+        output.WriteString(Text);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      if (Text.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Text);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(ErrorMessage other) {
+      if (other == null) {
+        return;
+      }
+      if (other.Text.Length != 0) {
+        Text = other.Text;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 10: {
+            Text = input.ReadString();
+            break;
+          }
+        }
+      }
+    }
+
+  }
+
   public sealed partial class ChatMessage : pb::IMessage<ChatMessage> {
     private static readonly pb::MessageParser<ChatMessage> _parser = new pb::MessageParser<ChatMessage>(() => new ChatMessage());
     private pb::UnknownFieldSet _unknownFields;
@@ -181,7 +470,7 @@ namespace Chat.Grpc {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Chat.Grpc.MessagingServerReflection.Descriptor.MessageTypes[1]; }
+      get { return global::Chat.Grpc.MessagingServerReflection.Descriptor.MessageTypes[3]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -200,8 +489,21 @@ namespace Chat.Grpc {
     public ChatMessage(ChatMessage other) : this() {
       type_ = other.type_;
       userCredential_ = other.userCredential_ != null ? other.userCredential_.Clone() : null;
-      dateTime_ = other.dateTime_;
-      text_ = other.text_ != null ? other.text_.Clone() : null;
+      timestamp_ = other.timestamp_;
+      signature_ = other.signature_;
+      topic_ = other.topic_;
+      switch (other.PayloadCase) {
+        case PayloadOneofCase.Text:
+          Text = other.Text.Clone();
+          break;
+        case PayloadOneofCase.Control:
+          Control = other.Control.Clone();
+          break;
+        case PayloadOneofCase.Error:
+          Error = other.Error.Clone();
+          break;
+      }
+
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -212,9 +514,9 @@ namespace Chat.Grpc {
 
     /// <summary>Field number for the "type" field.</summary>
     public const int TypeFieldNumber = 1;
-    private global::Chat.Grpc.ChatMessage.Types.ChatMessageType type_ = 0;
+    private global::Chat.Grpc.ChatMessageType type_ = 0;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public global::Chat.Grpc.ChatMessage.Types.ChatMessageType Type {
+    public global::Chat.Grpc.ChatMessageType Type {
       get { return type_; }
       set {
         type_ = value;
@@ -225,7 +527,7 @@ namespace Chat.Grpc {
     public const int UserCredentialFieldNumber = 2;
     private global::Chat.Grpc.UserCredential userCredential_;
     /// <summary>
-    /// somente para envio
+    /// user who generated the message
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Chat.Grpc.UserCredential UserCredential {
@@ -235,26 +537,93 @@ namespace Chat.Grpc {
       }
     }
 
-    /// <summary>Field number for the "date_time" field.</summary>
-    public const int DateTimeFieldNumber = 3;
-    private uint dateTime_;
+    /// <summary>Field number for the "timestamp" field.</summary>
+    public const int TimestampFieldNumber = 3;
+    private uint timestamp_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public uint DateTime {
-      get { return dateTime_; }
+    public uint Timestamp {
+      get { return timestamp_; }
       set {
-        dateTime_ = value;
+        timestamp_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "signature" field.</summary>
+    public const int SignatureFieldNumber = 6;
+    private pb::ByteString signature_ = pb::ByteString.Empty;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public pb::ByteString Signature {
+      get { return signature_; }
+      set {
+        signature_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "topic" field.</summary>
+    public const int TopicFieldNumber = 7;
+    private string topic_ = "";
+    /// <summary>
+    /// the topic in which the message was published
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public string Topic {
+      get { return topic_; }
+      set {
+        topic_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
       }
     }
 
     /// <summary>Field number for the "text" field.</summary>
     public const int TextFieldNumber = 4;
-    private global::Chat.Grpc.TextMessage text_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Chat.Grpc.TextMessage Text {
-      get { return text_; }
+      get { return payloadCase_ == PayloadOneofCase.Text ? (global::Chat.Grpc.TextMessage) payload_ : null; }
       set {
-        text_ = value;
+        payload_ = value;
+        payloadCase_ = value == null ? PayloadOneofCase.None : PayloadOneofCase.Text;
       }
+    }
+
+    /// <summary>Field number for the "control" field.</summary>
+    public const int ControlFieldNumber = 5;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::Chat.Grpc.ControlMessage Control {
+      get { return payloadCase_ == PayloadOneofCase.Control ? (global::Chat.Grpc.ControlMessage) payload_ : null; }
+      set {
+        payload_ = value;
+        payloadCase_ = value == null ? PayloadOneofCase.None : PayloadOneofCase.Control;
+      }
+    }
+
+    /// <summary>Field number for the "error" field.</summary>
+    public const int ErrorFieldNumber = 8;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::Chat.Grpc.ErrorMessage Error {
+      get { return payloadCase_ == PayloadOneofCase.Error ? (global::Chat.Grpc.ErrorMessage) payload_ : null; }
+      set {
+        payload_ = value;
+        payloadCase_ = value == null ? PayloadOneofCase.None : PayloadOneofCase.Error;
+      }
+    }
+
+    private object payload_;
+    /// <summary>Enum of possible cases for the "payload" oneof.</summary>
+    public enum PayloadOneofCase {
+      None = 0,
+      Text = 4,
+      Control = 5,
+      Error = 8,
+    }
+    private PayloadOneofCase payloadCase_ = PayloadOneofCase.None;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public PayloadOneofCase PayloadCase {
+      get { return payloadCase_; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void ClearPayload() {
+      payloadCase_ = PayloadOneofCase.None;
+      payload_ = null;
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -272,8 +641,13 @@ namespace Chat.Grpc {
       }
       if (Type != other.Type) return false;
       if (!object.Equals(UserCredential, other.UserCredential)) return false;
-      if (DateTime != other.DateTime) return false;
+      if (Timestamp != other.Timestamp) return false;
+      if (Signature != other.Signature) return false;
+      if (Topic != other.Topic) return false;
       if (!object.Equals(Text, other.Text)) return false;
+      if (!object.Equals(Control, other.Control)) return false;
+      if (!object.Equals(Error, other.Error)) return false;
+      if (PayloadCase != other.PayloadCase) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -282,8 +656,13 @@ namespace Chat.Grpc {
       int hash = 1;
       if (Type != 0) hash ^= Type.GetHashCode();
       if (userCredential_ != null) hash ^= UserCredential.GetHashCode();
-      if (DateTime != 0) hash ^= DateTime.GetHashCode();
-      if (text_ != null) hash ^= Text.GetHashCode();
+      if (Timestamp != 0) hash ^= Timestamp.GetHashCode();
+      if (Signature.Length != 0) hash ^= Signature.GetHashCode();
+      if (Topic.Length != 0) hash ^= Topic.GetHashCode();
+      if (payloadCase_ == PayloadOneofCase.Text) hash ^= Text.GetHashCode();
+      if (payloadCase_ == PayloadOneofCase.Control) hash ^= Control.GetHashCode();
+      if (payloadCase_ == PayloadOneofCase.Error) hash ^= Error.GetHashCode();
+      hash ^= (int) payloadCase_;
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -305,13 +684,29 @@ namespace Chat.Grpc {
         output.WriteRawTag(18);
         output.WriteMessage(UserCredential);
       }
-      if (DateTime != 0) {
+      if (Timestamp != 0) {
         output.WriteRawTag(24);
-        output.WriteUInt32(DateTime);
+        output.WriteUInt32(Timestamp);
       }
-      if (text_ != null) {
+      if (payloadCase_ == PayloadOneofCase.Text) {
         output.WriteRawTag(34);
         output.WriteMessage(Text);
+      }
+      if (payloadCase_ == PayloadOneofCase.Control) {
+        output.WriteRawTag(42);
+        output.WriteMessage(Control);
+      }
+      if (Signature.Length != 0) {
+        output.WriteRawTag(50);
+        output.WriteBytes(Signature);
+      }
+      if (Topic.Length != 0) {
+        output.WriteRawTag(58);
+        output.WriteString(Topic);
+      }
+      if (payloadCase_ == PayloadOneofCase.Error) {
+        output.WriteRawTag(66);
+        output.WriteMessage(Error);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -327,11 +722,23 @@ namespace Chat.Grpc {
       if (userCredential_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(UserCredential);
       }
-      if (DateTime != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(DateTime);
+      if (Timestamp != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Timestamp);
       }
-      if (text_ != null) {
+      if (Signature.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeBytesSize(Signature);
+      }
+      if (Topic.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Topic);
+      }
+      if (payloadCase_ == PayloadOneofCase.Text) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(Text);
+      }
+      if (payloadCase_ == PayloadOneofCase.Control) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Control);
+      }
+      if (payloadCase_ == PayloadOneofCase.Error) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Error);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -353,15 +760,36 @@ namespace Chat.Grpc {
         }
         UserCredential.MergeFrom(other.UserCredential);
       }
-      if (other.DateTime != 0) {
-        DateTime = other.DateTime;
+      if (other.Timestamp != 0) {
+        Timestamp = other.Timestamp;
       }
-      if (other.text_ != null) {
-        if (text_ == null) {
-          text_ = new global::Chat.Grpc.TextMessage();
-        }
-        Text.MergeFrom(other.Text);
+      if (other.Signature.Length != 0) {
+        Signature = other.Signature;
       }
+      if (other.Topic.Length != 0) {
+        Topic = other.Topic;
+      }
+      switch (other.PayloadCase) {
+        case PayloadOneofCase.Text:
+          if (Text == null) {
+            Text = new global::Chat.Grpc.TextMessage();
+          }
+          Text.MergeFrom(other.Text);
+          break;
+        case PayloadOneofCase.Control:
+          if (Control == null) {
+            Control = new global::Chat.Grpc.ControlMessage();
+          }
+          Control.MergeFrom(other.Control);
+          break;
+        case PayloadOneofCase.Error:
+          if (Error == null) {
+            Error = new global::Chat.Grpc.ErrorMessage();
+          }
+          Error.MergeFrom(other.Error);
+          break;
+      }
+
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -374,7 +802,7 @@ namespace Chat.Grpc {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 8: {
-            type_ = (global::Chat.Grpc.ChatMessage.Types.ChatMessageType) input.ReadEnum();
+            type_ = (global::Chat.Grpc.ChatMessageType) input.ReadEnum();
             break;
           }
           case 18: {
@@ -385,30 +813,47 @@ namespace Chat.Grpc {
             break;
           }
           case 24: {
-            DateTime = input.ReadUInt32();
+            Timestamp = input.ReadUInt32();
             break;
           }
           case 34: {
-            if (text_ == null) {
-              text_ = new global::Chat.Grpc.TextMessage();
+            global::Chat.Grpc.TextMessage subBuilder = new global::Chat.Grpc.TextMessage();
+            if (payloadCase_ == PayloadOneofCase.Text) {
+              subBuilder.MergeFrom(Text);
             }
-            input.ReadMessage(text_);
+            input.ReadMessage(subBuilder);
+            Text = subBuilder;
+            break;
+          }
+          case 42: {
+            global::Chat.Grpc.ControlMessage subBuilder = new global::Chat.Grpc.ControlMessage();
+            if (payloadCase_ == PayloadOneofCase.Control) {
+              subBuilder.MergeFrom(Control);
+            }
+            input.ReadMessage(subBuilder);
+            Control = subBuilder;
+            break;
+          }
+          case 50: {
+            Signature = input.ReadBytes();
+            break;
+          }
+          case 58: {
+            Topic = input.ReadString();
+            break;
+          }
+          case 66: {
+            global::Chat.Grpc.ErrorMessage subBuilder = new global::Chat.Grpc.ErrorMessage();
+            if (payloadCase_ == PayloadOneofCase.Error) {
+              subBuilder.MergeFrom(Error);
+            }
+            input.ReadMessage(subBuilder);
+            Error = subBuilder;
             break;
           }
         }
       }
     }
-
-    #region Nested types
-    /// <summary>Container for nested types declared in the ChatMessage message type.</summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public static partial class Types {
-      public enum ChatMessageType {
-        [pbr::OriginalName("TEXT")] Text = 0,
-      }
-
-    }
-    #endregion
 
   }
 
