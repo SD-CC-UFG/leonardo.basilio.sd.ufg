@@ -3,22 +3,32 @@ syntax = "proto3";
 package Chat.Grpc;
 option go_package = "grpc";
 
-message ServiceRequest {
-    enum ServiceType {
-        AUTH = 0;
-        MESSAGING = 1;
-    }
-	ServiceType name = 1;
+enum ServiceType {
+    AUTH = 0;
+    MESSAGING = 1;
 }
 
+message ServiceRequest {
+	ServiceType name = 1;
+}
 
 message ServiceResponse {
 	string ip = 1;
 	int32 port = 2;
 }
 
+message RegistrationRequest {
+  ServiceType name = 1;
+  float health = 2; 
+}
+
+message RegistrationResponse {
+  bool success = 1;
+}
+
 service NamingServer {
 
+  rpc Register(RegistrationRequest) returns (RegistrationResponse) {}
 	rpc GetServiceLocation(ServiceRequest) returns (ServiceResponse) {}
 
 }
