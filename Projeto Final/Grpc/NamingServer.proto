@@ -19,16 +19,30 @@ message ServiceResponse {
 
 message RegistrationRequest {
   ServiceType name = 1;
+  int32 port = 3;
   float health = 2; 
 }
 
 message RegistrationResponse {
   bool success = 1;
+  string ip = 2;
+  repeated ServiceResponse peers = 3;
 }
 
-service NamingServer {
+message PingRequest {
+  ServiceType name = 1;
+  int32 port = 3;
+  float health = 2; 
+}
 
-  rpc Register(RegistrationRequest) returns (RegistrationResponse) {}
+message PingResponse {
+  // Void, the life is void.
+}
+
+service Naming {
+
+  rpc RegisterService(RegistrationRequest) returns (RegistrationResponse) {}
 	rpc GetServiceLocation(ServiceRequest) returns (ServiceResponse) {}
+	rpc Ping(PingRequest) returns (PingResponse) {}
 
 }

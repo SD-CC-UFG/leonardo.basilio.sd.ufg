@@ -43,7 +43,7 @@ message ChatMessage {
     }
 }
 
-service MessagingServer {
+service Messaging {
 
     rpc TalkAndListen(stream ChatMessage) returns (stream ChatMessage) {}
 

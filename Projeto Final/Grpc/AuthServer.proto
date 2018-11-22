@@ -17,7 +17,7 @@ message UserCredential {
 	string error = 4;
 }
 
-service AuthServer {
+service Auth {
 
 	rpc Authenticate(UserLogin) returns (UserCredential) {}
 	rpc SignUp(UserLogin) returns (UserCredential) {}
