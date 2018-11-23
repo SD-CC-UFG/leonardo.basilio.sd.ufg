@@ -1,7 +1,13 @@
+== Autenticação ==
+
 ../Client/packages/Grpc.Tools.1.15.0/tools/linux_x64/protoc --csharp_out ../AuthServer/Grpc --grpc_out ../AuthServer/Grpc AuthServer.proto --plugin=protoc-gen-grpc=../Client/packages/Grpc.Tools.1.15.0/tools/linux_x64/grpc_csharp_plugin
+
+== Cliente ==
 
 ../Client/packages/Grpc.Tools.1.15.0/tools/linux_x64/protoc --csharp_out ../Client/Grpc --grpc_out ../Client/Grpc AuthServer.proto --plugin=protoc-gen-grpc=../Client/packages/Grpc.Tools.1.15.0/tools/linux_x64/grpc_csharp_plugin
 ../Client/packages/Grpc.Tools.1.15.0/tools/linux_x64/protoc --csharp_out ../Client/Grpc --grpc_out ../Client/Grpc NamingServer.proto --plugin=protoc-gen-grpc=../Client/packages/Grpc.Tools.1.15.0/tools/linux_x64/grpc_csharp_plugin
 ../Client/packages/Grpc.Tools.1.15.0/tools/linux_x64/protoc --csharp_out ../Client/Grpc --grpc_out ../Client/Grpc MessagingServer.proto --plugin=protoc-gen-grpc=../Client/packages/Grpc.Tools.1.15.0/tools/linux_x64/grpc_csharp_plugin
 
-protoc -I ../../Grpc/ ../../Grpc/NamingServer.proto --go_out=plugins=grpc:.
+== Nomes ==
+
+../NamingServer/node_modules/grpc-tools/bin/protoc --js_out=import_style=commonjs,binary:../NamingServer/grpc NamingServer.proto --grpc_out=../NamingServer/grpc --plugin=protoc-gen-grpc=../NamingServer/node_modules/grpc-tools/bin/grpc_node_plugin

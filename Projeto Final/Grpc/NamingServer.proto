@@ -20,7 +20,7 @@ message ServiceResponse {
 message RegistrationRequest {
   ServiceType name = 1;
   int32 port = 3;
-  float health = 2; 
+  float health = 2;
 }
 
 message RegistrationResponse {
@@ -32,11 +32,11 @@ message RegistrationResponse {
 message PingRequest {
   ServiceType name = 1;
   int32 port = 3;
-  float health = 2; 
+  float health = 2;
 }
 
 message PingResponse {
-  // Void, the life is void.
+  bool success = 1;
 }
 
 service Naming {
