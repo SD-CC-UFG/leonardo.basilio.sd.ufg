@@ -39,11 +39,79 @@ function checkNextNode(name, node){
 
 }
 
-function registerService(call, callback){
+function registerServiceSetPeers(newNode){
+
+    var min1 = null;
+    var min2 = null;
+
+    if(newNode.peers.length >= 2) return;
+
+    for(let id in servicesNodes){
+
+        let node = servicesNodes[id];
+
+        if(node.type == newNode.type && node.id != newNode.id){
+
+            if(!min1 || min1.peers.length > node.peers.length){
+
+                min1 = node;
+
+            }else if(!min2 || min2.peers.length > node.peers.length){
+
+                min2 = node;
+
+            }
+
+        }
+
+    }
+
+    if(newNode.peers.length == 0){
+        if(min1){
+            newNode.peers.push(min1);
+            min1.peers.push(newNode);
+        }
+        if(min2){
+            newNode.peers.push(min2);
+            min2.peers.push(newNode);
+        }
+    }else{
+        if(min1 && min1 != newNode.peers[0]){
+            newNode.peers.push(min1);
+            min1.peers.push(newNode);
+        }else if(min2){
+            newNode.peers.push(min2);
+            min2.peers.push(newNode);
+        }
+    }
+
+}
+
+function registerServiceBuildResponse(node){
 
     var response = new messages.RegistrationResponse();
-    var request = call.request;
 
+    response.setSuccess(true);
+    response.setIp(node.ip);
+
+    for(let peer of node.peers){
+
+        let item = new messages.ServiceResponse();
+
+        item.setIp(peer.ip);
+        item.setPort(peer.port);
+
+        response.addPeers(item);
+
+    }
+
+    return response;
+
+}
+
+function registerService(call, callback){
+
+    var request = call.request;
     var nodeId = buildNodeId(call);
     var node = servicesNodes[nodeId];
 
@@ -52,19 +120,27 @@ function registerService(call, callback){
         log(registerService.name, nodeId);
 
         servicesNodes[nodeId] = node = {
+            id: nodeId,
             ip: getIPFromPeer(call.getPeer()),
             port: request.getPort(),
-            health: request.getHealth(),
-            timestamp: process.hrtime()[0]
+            type: request.getName(),
+            peers: []
         };
 
-        checkNextNode(request.getName(), node);
+        if(!servicesNextNode[node.type]) {
+            servicesNextNode[node.type] = node;
+        }
 
     }
 
-    response.setSuccess(true);
+    node.health = request.getHealth();
+    node.timestamp = process.hrtime()[0];
 
-    callback(null, response);
+    if(node.type == messages.ServiceType.MESSAGING){
+        registerServiceSetPeers(node);
+    }
+
+    callback(null, registerServiceBuildResponse(node));
 
 }
 
@@ -110,13 +186,19 @@ function getServiceLocation(call, callback){
 
 //=================================
 
-var server = new grpc.Server();
+function runServer(){
 
-server.addService(services.NamingService, {
-    registerService: registerService,
-    ping: ping,
-    getServiceLocation: getServiceLocation
-})
+    var server = new grpc.Server();
 
-server.bind('0.0.0.0:7777', grpc.ServerCredentials.createInsecure());
-server.start();
+    server.addService(services.NamingService, {
+        registerService: registerService,
+        ping: ping,
+        getServiceLocation: getServiceLocation
+    })
+
+    server.bind('0.0.0.0:7777', grpc.ServerCredentials.createInsecure());
+    server.start();
+
+}
+
+runServer();
