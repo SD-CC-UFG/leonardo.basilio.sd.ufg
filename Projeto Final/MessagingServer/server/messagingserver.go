@@ -42,7 +42,7 @@ func (s *MessagingServer) StartLoop() {
 	}()
 }
 
-func (s *MessagingServer) sendMessages(username string, stream pb.MessagingServer_TalkAndListenServer) {
+func (s *MessagingServer) sendMessages(username string, stream pb.Messaging_TalkAndListenServer) {
 	log.Printf("Create channel to user %s.\n", username)
 
 	channel := make(chan *pb.ChatMessage)
@@ -69,7 +69,7 @@ func (s *MessagingServer) sendMessages(username string, stream pb.MessagingServe
 	s.mutex.Unlock()
 }
 
-func (s *MessagingServer) TalkAndListen(stream pb.MessagingServer_TalkAndListenServer) error {
+func (s *MessagingServer) TalkAndListen(stream pb.Messaging_TalkAndListenServer) error {
 	var username string
 
 	in, err := stream.Recv()

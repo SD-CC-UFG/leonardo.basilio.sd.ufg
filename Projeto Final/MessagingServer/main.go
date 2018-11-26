@@ -33,7 +33,7 @@ func main() {
 	messagingServer := server.NewMessagingServer()
 	messagingServer.StartLoop()
 
-	pb.RegisterMessagingServerServer(grpcServer, &messagingServer)
+	pb.RegisterMessagingServer(grpcServer, &messagingServer)
 
 	grpcServer.Serve(listen)
 }
