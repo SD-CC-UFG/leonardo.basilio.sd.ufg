@@ -26,14 +26,14 @@ func main() {
 
 	defer listen.Close()
 
-	log.Printf("Listening on port %v.\n", port)
-
 	grpcServer := grpc.NewServer()
 
 	messagingServer := server.NewMessagingServer()
 	messagingServer.StartLoop()
 
 	pb.RegisterMessagingServer(grpcServer, &messagingServer)
+
+	log.Printf("Listening on port %v.\n", port)
 
 	grpcServer.Serve(listen)
 }

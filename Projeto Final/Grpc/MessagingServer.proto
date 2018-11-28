@@ -43,8 +43,23 @@ message ChatMessage {
     }
 }
 
+message SubscribeRequest {
+  string topic = 1;
+  string ip = 3;
+  int32 port = 2;
+}
+
+message SubscribeResponse {
+}
+
+message PublishResponse {
+}
+
 service Messaging {
 
     rpc TalkAndListen(stream ChatMessage) returns (stream ChatMessage) {}
+    rpc Subscribe(SubscribeRequest) returns (SubscribeResponse) {}
+    rpc Unsubscribe(SubscribeRequest) returns (SubscribeResponse) {}
+    rpc Publish(ChatMessage) returns (PublishResponse) {}
 
 }
