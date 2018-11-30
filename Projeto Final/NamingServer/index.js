@@ -13,6 +13,10 @@ function log(fn, s){
     console.log(`${now.toLocaleTimeString()} [${fn}] ${s}`);
 }
 
+function getMonotonicClock(){
+    return process.hrtime()[0];
+}
+
 function getIPFromPeer(peer){
 
     var result = /^ipv4:(\d+\.\d+\.\d+\.\d+):\d+$/.exec(peer);
@@ -27,13 +31,13 @@ function buildNodeId(call){
 
 }
 
-function checkNextNode(name, node){
+function checkNextNode(node){
 
-    var nextNode = servicesNextNode[name];
+    var nextNode = servicesNextNode[node.type];
 
     if(!nextNode || nextNode.health < node.health){
 
-        servicesNextNode[name] = node;
+        servicesNextNode[node.type] = node;
 
     }
 
@@ -134,13 +138,30 @@ function registerService(call, callback){
     }
 
     node.health = request.getHealth();
-    node.timestamp = process.hrtime()[0];
+    node.timestamp = getMonotonicClock();
 
     if(node.type == messages.ServiceType.MESSAGING){
         registerServiceSetPeers(node);
     }
 
     callback(null, registerServiceBuildResponse(node));
+
+}
+
+function unregisterService(node){
+
+    if(servicesNextNode[node.type] == node){
+        servicesNextNode[node.type] = null;
+    }
+
+    for(let myPeer of node.peers){
+        let i = myPeer.peers.indexOf(node);
+        if(i >= 0) myPeer.peers.splice(i, 1);
+    }
+
+    delete servicesNodes[node.id];
+
+    log(unregisterService.name, node.id);
 
 }
 
@@ -151,9 +172,9 @@ function ping(call, callback){
 
     if(node){
 
-        node.timestamp = process.hrtime()[0];
+        node.timestamp = getMonotonicClock();
 
-        checkNextNode(call.request.getName(), node);
+        checkNextNode(node);
 
     }
 
@@ -186,6 +207,28 @@ function getServiceLocation(call, callback){
 
 //=================================
 
+function runPingMonitor(){
+
+    setInterval(function(){
+
+        var servicesNodesKeys = Object.keys(servicesNodes);
+        var limitTimestamp = getMonotonicClock()-5;
+
+        for(let nodeId of servicesNodesKeys){
+            let node = servicesNodes[nodeId];
+            if(node.timestamp < limitTimestamp){
+                unregisterService(node);
+            }
+        }
+
+        for(let nodeId in servicesNodes){
+            checkNextNode(servicesNodes[nodeId]);
+        }
+
+    }, 1000);
+
+}
+
 function runServer(){
 
     var server = new grpc.Server();
@@ -201,4 +244,5 @@ function runServer(){
 
 }
 
+runPingMonitor();
 runServer();
