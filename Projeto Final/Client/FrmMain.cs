@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using Chat.Grpc;
 using Grpc.Core;
 
@@ -16,29 +17,21 @@ namespace Client {
         private UserCredential credential;
         private ClientStatus currentStatus;
 
+        private Dictionary<string, ChannelItem> channelsMap;
+        private List<ChannelItem> channelsList;
+        private ChannelItem currentChannel;
+        private int currentChannelIndex = -1;
+        private bool changingChannel = false;
+
         private AsyncDuplexStreamingCall<ChatMessage, ChatMessage> streamingCall;
-
-        //======================================
-        //======================================
-
-        private Gtk.TextTag textTagError = new Gtk.TextTag(null) {
-            Weight = Pango.Weight.Bold,
-            Foreground = "red"
-        };
-
-        private Gtk.TextTag textTagSender = new Gtk.TextTag(null) {
-            Weight = Pango.Weight.Bold,
-            Foreground = "blue"
-        };
-
-        //======================================
-        //======================================
 
         public FrmMain(UserCredential credential) : base(Gtk.WindowType.Toplevel) {
 
             this.Build();
 
             this.credential = credential;
+            this.channelsMap = new Dictionary<string, ChannelItem>();
+            this.channelsList = new List<ChannelItem>();
 
             this.Focus = txtMessage;
 
@@ -47,11 +40,6 @@ namespace Client {
             //============================
 
             this.DeleteEvent += (o, args) => Gtk.Application.Quit();
-
-            //============================
-
-            txtRoom.Buffer.TagTable.Add(textTagError);
-            txtRoom.Buffer.TagTable.Add(textTagSender);
 
             //============================
 
@@ -144,6 +132,24 @@ namespace Client {
 
                         break;
 
+                    case "/quit":
+
+                        if (words.Length != 1) {
+
+                            RaiseUserError("/quit não possui parâmetros");
+
+                        } else if (this.currentChannel == null) {
+
+                            RaiseUserError("Você não entrou em nenhum canal");
+
+                        } else {
+
+                            QuitChannel(this.currentChannel.Topic);
+
+                        }
+
+                        break;
+
                     default:
 
                         if (message.Length > 1 && message[1] == '/') return false;
@@ -164,42 +170,110 @@ namespace Client {
 
         private void ProcessMessage(ChatMessage message) {
 
-            var messageTime = message.DateTime.ToShortTimeString();
+            if (message.Type == ChatMessageType.Control) {
 
-            var buffer = txtRoom.Buffer;
-            var iter = buffer.EndIter;
+                switch (message.Control.Type) {
 
-            switch (message.Type) {
+                    case ControlMessageType.Joined:
 
-                case ChatMessageType.Error:
+                        if (message.UserCredential.UserName == this.credential.UserName &&
+                            !channelsMap.ContainsKey(message.Topic)) {
 
-                    buffer.InsertWithTags(ref iter, messageTime + " - " + message.Error.Text + "\n\n", textTagError);
+                            var item = new ChannelItem(message.Topic);
 
-                    break;
+                            item.ButtonToggled += ChannelItem_ButtonToggled;
 
-                case ChatMessageType.Text:
+                            channelsMap.Add(message.Topic, item);
+                            channelsList.Add(item);
 
-                    buffer.InsertWithTags(ref iter, messageTime + " - " + message.UserCredential.UserName + "\n", textTagSender);
-                    buffer.Insert(ref iter, message.Text.Text + "\n\n");
+                            channelsBox.PackEnd(item.Button);
+                            channelsNotebook.AppendPage(item.Page, null);
 
-                    break;
+                            this.GoToChannel(message.Topic);
 
-                default:
+                        }
 
-                    return;
+                        break;
+
+                    case ControlMessageType.Quitted:
+
+                        if (message.UserCredential.UserName == this.credential.UserName &&
+                            channelsMap.ContainsKey(message.Topic)) {
+
+                            var item = channelsMap[message.Topic];
+
+                            channelsMap.Remove(item.Topic);
+                            channelsList.Remove(item);
+
+                            channelsBox.Remove(item.Button);
+                            channelsNotebook.RemovePage(channelsNotebook.CurrentPage);
+
+                            if (item == this.currentChannel) {
+
+                                this.currentChannel = null;
+
+                                this.GoToChannel(this.currentChannelIndex - 1);
+
+                            } else {
+
+                                this.currentChannelIndex = channelsList.IndexOf(this.currentChannel);
+
+                            }
+
+                            return;
+
+                        }
+
+                        break;
+
+                }
 
             }
 
-            txtRoom.ScrollToMark(buffer.InsertMark, 0, true, 0, 1);
+            if (message.Topic == "") {
+
+                this.currentChannel.AppendMessage(message);
+
+            } else if (this.channelsMap.ContainsKey(message.Topic)) {
+
+                this.channelsMap[message.Topic].AppendMessage(message);
+
+            }
 
         }
 
         protected void OnBtSendMessageClicked(object sender, EventArgs e) {
+
             SendUserMessage();
+
         }
 
         protected void OnTxtMessageKeyReleaseEvent(object o, Gtk.KeyReleaseEventArgs args) {
+
             if (args.Event.Key == Gdk.Key.Return) SendUserMessage();
+
+        }
+
+        protected void OnTxtMessageKeyPressEvent(object o, Gtk.KeyPressEventArgs args) {
+
+            if ((args.Event.Key == Gdk.Key.Tab || args.Event.Key == Gdk.Key.ISO_Left_Tab) &&
+                args.Event.State.HasFlag(Gdk.ModifierType.ControlMask) &&
+                this.currentChannel != null) {
+
+                if (args.Event.Key == Gdk.Key.ISO_Left_Tab) {
+
+                    this.GoToChannel(this.currentChannelIndex - 1, true);
+
+                } else {
+
+                    this.GoToChannel(this.currentChannelIndex + 1, true);
+
+                }
+
+                args.RetVal = true;
+
+            }
+
         }
 
         private void RaiseUserError(string message) {
@@ -256,14 +330,113 @@ namespace Client {
 
         private void JoinChannel(string channelName) {
 
-            this.SendChatMessage(new ChatMessage() {
-                Type = ChatMessageType.Control,
-                UserCredential = this.credential,
-                Topic = channelName,
-                Control = new ControlMessage() {
-                    Type = ControlMessageType.Joined
+            if (channelsMap.ContainsKey(channelName)) {
+
+                this.GoToChannel(channelName);
+
+            } else {
+
+                this.SendChatMessage(new ChatMessage() {
+                    Type = ChatMessageType.Control,
+                    UserCredential = this.credential,
+                    Topic = channelName,
+                    Control = new ControlMessage() {
+                        Type = ControlMessageType.Joined
+                    }
+                });
+
+            }
+
+        }
+
+        private void QuitChannel(string channelName) {
+
+            if (channelsMap.ContainsKey(channelName)) {
+
+                this.SendChatMessage(new ChatMessage() {
+                    Type = ChatMessageType.Control,
+                    UserCredential = this.credential,
+                    Topic = channelName,
+                    Control = new ControlMessage() {
+                        Type = ControlMessageType.Quitted
+                    }
+                });
+
+            }
+
+        }
+
+        void ChannelItem_ButtonToggled(object sender, EventArgs e) {
+
+            GoToChannel((sender as ChannelItem).Topic);
+
+        }
+
+        private void GoToChannel(int index, bool circular = false) {
+
+            if (index < 0) {
+
+                index = circular ? channelsList.Count - 1 : 0;
+
+            } else if (index >= channelsList.Count) {
+
+                index = circular ? 0 : channelsList.Count - 1;
+
+            }
+
+            if (index >= 0 && index < channelsList.Count) {
+
+                this.GoToChannel(channelsList[index]);
+
+            } else {
+
+                this.GoToChannel(null as ChannelItem);
+
+            }
+
+        }
+
+        private void GoToChannel(string topic) {
+
+            this.GoToChannel(this.channelsMap[topic]);
+
+        }
+
+        private void GoToChannel(ChannelItem newChannel) {
+
+            if (!this.changingChannel) {
+
+                this.changingChannel = true;
+
+                if (this.currentChannel != null) {
+
+                    this.currentChannel.Button.Active = false;
+
                 }
-            });
+
+                if (newChannel != null) {
+
+                    newChannel.Button.Active = true;
+
+                    channelsNotebook.CurrentPage = Array.IndexOf(channelsNotebook.Children, newChannel.Page);
+
+                    this.currentChannelIndex = channelsNotebook.CurrentPage - 1;
+
+                } else {
+
+                    channelsNotebook.CurrentPage = 0;
+
+                    this.currentChannelIndex = -1;
+
+                }
+
+                this.currentChannel = newChannel;
+
+                this.changingChannel = false;
+
+                this.Focus = txtMessage;
+
+            }
 
         }
 
