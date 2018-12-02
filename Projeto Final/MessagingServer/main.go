@@ -4,21 +4,24 @@ import (
 	"fmt"
 	"github.com/sd-cc-ufg/leonardo.basilio.sd.ufg/ProjetoFinal/MessagingServer/server"
 	"log"
+	"math/rand"
 	"net"
 	"os"
 
 	pb "github.com/sd-cc-ufg/leonardo.basilio.sd.ufg/ProjetoFinal/MessagingServer/grpc"
 	"google.golang.org/grpc"
+	"strconv"
 )
 
 func main() {
 	// get the port from env var
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8888"
+	port, err := strconv.Atoi(os.Getenv("PORT"))
+	if err != nil || port < 0 || port > 65000 {
+		// choose a port random
+		port = rand.Intn(65001)
 	}
 
-	listen, err := net.Listen("tcp", fmt.Sprintf(":%s", port))
+	listen, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 
 	if err != nil {
 		log.Fatal(err)
@@ -28,7 +31,7 @@ func main() {
 
 	grpcServer := grpc.NewServer()
 
-	messagingServer := server.NewMessagingServer()
+	messagingServer := server.NewMessagingServer(port)
 	messagingServer.StartLoop()
 
 	pb.RegisterMessagingServer(grpcServer, &messagingServer)

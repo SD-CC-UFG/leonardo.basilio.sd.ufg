@@ -2,23 +2,30 @@ package server
 
 import (
 	"context"
+
 	pb "github.com/sd-cc-ufg/leonardo.basilio.sd.ufg/ProjetoFinal/MessagingServer/grpc"
+	"google.golang.org/grpc"
 	"io"
 	"log"
 	"sync"
+	"time"
 )
 
 type MessagingServer struct {
 	mutex        *sync.Mutex
 	userChannels map[string]chan *pb.ChatMessage
 	chatChannel  chan *pb.ChatMessage
+	ip           string
+	port         int
+	peers        []*pb.ServiceResponse
 }
 
-func NewMessagingServer() MessagingServer {
+func NewMessagingServer(port int) MessagingServer {
 	return MessagingServer{
 		mutex:        &sync.Mutex{},
 		userChannels: make(map[string]chan *pb.ChatMessage),
 		chatChannel:  make(chan *pb.ChatMessage),
+		port:         port,
 	}
 }
 
@@ -39,6 +46,62 @@ func (s *MessagingServer) StartLoop() {
 				userChannel <- chatMessage
 			}
 			s.mutex.Unlock()
+		}
+	}()
+
+	duration, _ := time.ParseDuration("2s")
+	time.Sleep(duration)
+
+	// register messaging service in naming service
+
+	conn, err := grpc.Dial("naming:7777", grpc.WithInsecure())
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer conn.Close()
+
+	client := pb.NewNamingClient(conn)
+
+	regReq := &pb.RegistrationRequest{Name: pb.ServiceType_MESSAGING, Port: int32(s.port), Health: 0.8}
+	regRes, err := client.RegisterService(context.Background(), regReq)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if regRes.Success == false {
+		log.Fatalf("Registration in naming server failed.\n")
+	}
+
+	s.ip = regRes.Ip
+	s.peers = regRes.Peers
+
+	// start goroutine to ping naming service periodically
+	go func() {
+		for {
+			duration, _ := time.ParseDuration("2s")
+			time.Sleep(duration) // sleep for 2 seconds
+
+			conn, err := grpc.Dial("naming:7777", grpc.WithInsecure())
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			client := pb.NewNamingClient(conn)
+
+			log.Print("Ping naming server.")
+			pingReq := &pb.PingRequest{Name: pb.ServiceType_MESSAGING, Port: int32(s.port), Health: 0.8}
+			pingRes, err := client.Ping(context.Background(), pingReq)
+
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			if !pingRes.Success {
+				log.Fatalf("Error in ping naming server.\n")
+			}
+
+			conn.Close()
 		}
 	}()
 }
