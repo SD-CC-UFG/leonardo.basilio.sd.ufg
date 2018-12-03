@@ -8,11 +8,14 @@
 using grpc = global::Grpc.Core;
 
 namespace Chat.Grpc {
-  public static partial class MessagingServer
+  public static partial class Messaging
   {
-    static readonly string __ServiceName = "Chat.Grpc.MessagingServer";
+    static readonly string __ServiceName = "Chat.Grpc.Messaging";
 
     static readonly grpc::Marshaller<global::Chat.Grpc.ChatMessage> __Marshaller_Chat_Grpc_ChatMessage = grpc::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Chat.Grpc.ChatMessage.Parser.ParseFrom);
+    static readonly grpc::Marshaller<global::Chat.Grpc.SubscribeRequest> __Marshaller_Chat_Grpc_SubscribeRequest = grpc::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Chat.Grpc.SubscribeRequest.Parser.ParseFrom);
+    static readonly grpc::Marshaller<global::Chat.Grpc.SubscribeResponse> __Marshaller_Chat_Grpc_SubscribeResponse = grpc::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Chat.Grpc.SubscribeResponse.Parser.ParseFrom);
+    static readonly grpc::Marshaller<global::Chat.Grpc.PublishResponse> __Marshaller_Chat_Grpc_PublishResponse = grpc::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Chat.Grpc.PublishResponse.Parser.ParseFrom);
 
     static readonly grpc::Method<global::Chat.Grpc.ChatMessage, global::Chat.Grpc.ChatMessage> __Method_TalkAndListen = new grpc::Method<global::Chat.Grpc.ChatMessage, global::Chat.Grpc.ChatMessage>(
         grpc::MethodType.DuplexStreaming,
@@ -21,42 +24,78 @@ namespace Chat.Grpc {
         __Marshaller_Chat_Grpc_ChatMessage,
         __Marshaller_Chat_Grpc_ChatMessage);
 
+    static readonly grpc::Method<global::Chat.Grpc.SubscribeRequest, global::Chat.Grpc.SubscribeResponse> __Method_Subscribe = new grpc::Method<global::Chat.Grpc.SubscribeRequest, global::Chat.Grpc.SubscribeResponse>(
+        grpc::MethodType.Unary,
+        __ServiceName,
+        "Subscribe",
+        __Marshaller_Chat_Grpc_SubscribeRequest,
+        __Marshaller_Chat_Grpc_SubscribeResponse);
+
+    static readonly grpc::Method<global::Chat.Grpc.SubscribeRequest, global::Chat.Grpc.SubscribeResponse> __Method_Unsubscribe = new grpc::Method<global::Chat.Grpc.SubscribeRequest, global::Chat.Grpc.SubscribeResponse>(
+        grpc::MethodType.Unary,
+        __ServiceName,
+        "Unsubscribe",
+        __Marshaller_Chat_Grpc_SubscribeRequest,
+        __Marshaller_Chat_Grpc_SubscribeResponse);
+
+    static readonly grpc::Method<global::Chat.Grpc.ChatMessage, global::Chat.Grpc.PublishResponse> __Method_Publish = new grpc::Method<global::Chat.Grpc.ChatMessage, global::Chat.Grpc.PublishResponse>(
+        grpc::MethodType.Unary,
+        __ServiceName,
+        "Publish",
+        __Marshaller_Chat_Grpc_ChatMessage,
+        __Marshaller_Chat_Grpc_PublishResponse);
+
     /// <summary>Service descriptor</summary>
     public static global::Google.Protobuf.Reflection.ServiceDescriptor Descriptor
     {
       get { return global::Chat.Grpc.MessagingServerReflection.Descriptor.Services[0]; }
     }
 
-    /// <summary>Base class for server-side implementations of MessagingServer</summary>
-    public abstract partial class MessagingServerBase
+    /// <summary>Base class for server-side implementations of Messaging</summary>
+    public abstract partial class MessagingBase
     {
       public virtual global::System.Threading.Tasks.Task TalkAndListen(grpc::IAsyncStreamReader<global::Chat.Grpc.ChatMessage> requestStream, grpc::IServerStreamWriter<global::Chat.Grpc.ChatMessage> responseStream, grpc::ServerCallContext context)
       {
         throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
       }
 
+      public virtual global::System.Threading.Tasks.Task<global::Chat.Grpc.SubscribeResponse> Subscribe(global::Chat.Grpc.SubscribeRequest request, grpc::ServerCallContext context)
+      {
+        throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
+      }
+
+      public virtual global::System.Threading.Tasks.Task<global::Chat.Grpc.SubscribeResponse> Unsubscribe(global::Chat.Grpc.SubscribeRequest request, grpc::ServerCallContext context)
+      {
+        throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
+      }
+
+      public virtual global::System.Threading.Tasks.Task<global::Chat.Grpc.PublishResponse> Publish(global::Chat.Grpc.ChatMessage request, grpc::ServerCallContext context)
+      {
+        throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
+      }
+
     }
 
-    /// <summary>Client for MessagingServer</summary>
-    public partial class MessagingServerClient : grpc::ClientBase<MessagingServerClient>
+    /// <summary>Client for Messaging</summary>
+    public partial class MessagingClient : grpc::ClientBase<MessagingClient>
     {
-      /// <summary>Creates a new client for MessagingServer</summary>
+      /// <summary>Creates a new client for Messaging</summary>
       /// <param name="channel">The channel to use to make remote calls.</param>
-      public MessagingServerClient(grpc::Channel channel) : base(channel)
+      public MessagingClient(grpc::Channel channel) : base(channel)
       {
       }
-      /// <summary>Creates a new client for MessagingServer that uses a custom <c>CallInvoker</c>.</summary>
+      /// <summary>Creates a new client for Messaging that uses a custom <c>CallInvoker</c>.</summary>
       /// <param name="callInvoker">The callInvoker to use to make remote calls.</param>
-      public MessagingServerClient(grpc::CallInvoker callInvoker) : base(callInvoker)
+      public MessagingClient(grpc::CallInvoker callInvoker) : base(callInvoker)
       {
       }
       /// <summary>Protected parameterless constructor to allow creation of test doubles.</summary>
-      protected MessagingServerClient() : base()
+      protected MessagingClient() : base()
       {
       }
       /// <summary>Protected constructor to allow creation of configured clients.</summary>
       /// <param name="configuration">The client configuration.</param>
-      protected MessagingServerClient(ClientBaseConfiguration configuration) : base(configuration)
+      protected MessagingClient(ClientBaseConfiguration configuration) : base(configuration)
       {
       }
 
@@ -68,19 +107,70 @@ namespace Chat.Grpc {
       {
         return CallInvoker.AsyncDuplexStreamingCall(__Method_TalkAndListen, null, options);
       }
-      /// <summary>Creates a new instance of client from given <c>ClientBaseConfiguration</c>.</summary>
-      protected override MessagingServerClient NewInstance(ClientBaseConfiguration configuration)
+      public virtual global::Chat.Grpc.SubscribeResponse Subscribe(global::Chat.Grpc.SubscribeRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
       {
-        return new MessagingServerClient(configuration);
+        return Subscribe(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      public virtual global::Chat.Grpc.SubscribeResponse Subscribe(global::Chat.Grpc.SubscribeRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.BlockingUnaryCall(__Method_Subscribe, null, options, request);
+      }
+      public virtual grpc::AsyncUnaryCall<global::Chat.Grpc.SubscribeResponse> SubscribeAsync(global::Chat.Grpc.SubscribeRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return SubscribeAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      public virtual grpc::AsyncUnaryCall<global::Chat.Grpc.SubscribeResponse> SubscribeAsync(global::Chat.Grpc.SubscribeRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.AsyncUnaryCall(__Method_Subscribe, null, options, request);
+      }
+      public virtual global::Chat.Grpc.SubscribeResponse Unsubscribe(global::Chat.Grpc.SubscribeRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return Unsubscribe(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      public virtual global::Chat.Grpc.SubscribeResponse Unsubscribe(global::Chat.Grpc.SubscribeRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.BlockingUnaryCall(__Method_Unsubscribe, null, options, request);
+      }
+      public virtual grpc::AsyncUnaryCall<global::Chat.Grpc.SubscribeResponse> UnsubscribeAsync(global::Chat.Grpc.SubscribeRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return UnsubscribeAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      public virtual grpc::AsyncUnaryCall<global::Chat.Grpc.SubscribeResponse> UnsubscribeAsync(global::Chat.Grpc.SubscribeRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.AsyncUnaryCall(__Method_Unsubscribe, null, options, request);
+      }
+      public virtual global::Chat.Grpc.PublishResponse Publish(global::Chat.Grpc.ChatMessage request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return Publish(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      public virtual global::Chat.Grpc.PublishResponse Publish(global::Chat.Grpc.ChatMessage request, grpc::CallOptions options)
+      {
+        return CallInvoker.BlockingUnaryCall(__Method_Publish, null, options, request);
+      }
+      public virtual grpc::AsyncUnaryCall<global::Chat.Grpc.PublishResponse> PublishAsync(global::Chat.Grpc.ChatMessage request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return PublishAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      public virtual grpc::AsyncUnaryCall<global::Chat.Grpc.PublishResponse> PublishAsync(global::Chat.Grpc.ChatMessage request, grpc::CallOptions options)
+      {
+        return CallInvoker.AsyncUnaryCall(__Method_Publish, null, options, request);
+      }
+      /// <summary>Creates a new instance of client from given <c>ClientBaseConfiguration</c>.</summary>
+      protected override MessagingClient NewInstance(ClientBaseConfiguration configuration)
+      {
+        return new MessagingClient(configuration);
       }
     }
 
     /// <summary>Creates service definition that can be registered with a server</summary>
     /// <param name="serviceImpl">An object implementing the server-side handling logic.</param>
-    public static grpc::ServerServiceDefinition BindService(MessagingServerBase serviceImpl)
+    public static grpc::ServerServiceDefinition BindService(MessagingBase serviceImpl)
     {
       return grpc::ServerServiceDefinition.CreateBuilder()
-          .AddMethod(__Method_TalkAndListen, serviceImpl.TalkAndListen).Build();
+          .AddMethod(__Method_TalkAndListen, serviceImpl.TalkAndListen)
+          .AddMethod(__Method_Subscribe, serviceImpl.Subscribe)
+          .AddMethod(__Method_Unsubscribe, serviceImpl.Unsubscribe)
+          .AddMethod(__Method_Publish, serviceImpl.Publish).Build();
     }
 
   }

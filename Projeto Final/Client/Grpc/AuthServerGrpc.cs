@@ -8,9 +8,9 @@
 using grpc = global::Grpc.Core;
 
 namespace Chat.Grpc {
-  public static partial class AuthServer
+  public static partial class Auth
   {
-    static readonly string __ServiceName = "Chat.Grpc.AuthServer";
+    static readonly string __ServiceName = "Chat.Grpc.Auth";
 
     static readonly grpc::Marshaller<global::Chat.Grpc.UserLogin> __Marshaller_Chat_Grpc_UserLogin = grpc::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Chat.Grpc.UserLogin.Parser.ParseFrom);
     static readonly grpc::Marshaller<global::Chat.Grpc.UserCredential> __Marshaller_Chat_Grpc_UserCredential = grpc::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Chat.Grpc.UserCredential.Parser.ParseFrom);
@@ -42,8 +42,8 @@ namespace Chat.Grpc {
       get { return global::Chat.Grpc.AuthServerReflection.Descriptor.Services[0]; }
     }
 
-    /// <summary>Base class for server-side implementations of AuthServer</summary>
-    public abstract partial class AuthServerBase
+    /// <summary>Base class for server-side implementations of Auth</summary>
+    public abstract partial class AuthBase
     {
       public virtual global::System.Threading.Tasks.Task<global::Chat.Grpc.UserCredential> Authenticate(global::Chat.Grpc.UserLogin request, grpc::ServerCallContext context)
       {
@@ -62,26 +62,26 @@ namespace Chat.Grpc {
 
     }
 
-    /// <summary>Client for AuthServer</summary>
-    public partial class AuthServerClient : grpc::ClientBase<AuthServerClient>
+    /// <summary>Client for Auth</summary>
+    public partial class AuthClient : grpc::ClientBase<AuthClient>
     {
-      /// <summary>Creates a new client for AuthServer</summary>
+      /// <summary>Creates a new client for Auth</summary>
       /// <param name="channel">The channel to use to make remote calls.</param>
-      public AuthServerClient(grpc::Channel channel) : base(channel)
+      public AuthClient(grpc::Channel channel) : base(channel)
       {
       }
-      /// <summary>Creates a new client for AuthServer that uses a custom <c>CallInvoker</c>.</summary>
+      /// <summary>Creates a new client for Auth that uses a custom <c>CallInvoker</c>.</summary>
       /// <param name="callInvoker">The callInvoker to use to make remote calls.</param>
-      public AuthServerClient(grpc::CallInvoker callInvoker) : base(callInvoker)
+      public AuthClient(grpc::CallInvoker callInvoker) : base(callInvoker)
       {
       }
       /// <summary>Protected parameterless constructor to allow creation of test doubles.</summary>
-      protected AuthServerClient() : base()
+      protected AuthClient() : base()
       {
       }
       /// <summary>Protected constructor to allow creation of configured clients.</summary>
       /// <param name="configuration">The client configuration.</param>
-      protected AuthServerClient(ClientBaseConfiguration configuration) : base(configuration)
+      protected AuthClient(ClientBaseConfiguration configuration) : base(configuration)
       {
       }
 
@@ -134,15 +134,15 @@ namespace Chat.Grpc {
         return CallInvoker.AsyncUnaryCall(__Method_RenewCredential, null, options, request);
       }
       /// <summary>Creates a new instance of client from given <c>ClientBaseConfiguration</c>.</summary>
-      protected override AuthServerClient NewInstance(ClientBaseConfiguration configuration)
+      protected override AuthClient NewInstance(ClientBaseConfiguration configuration)
       {
-        return new AuthServerClient(configuration);
+        return new AuthClient(configuration);
       }
     }
 
     /// <summary>Creates service definition that can be registered with a server</summary>
     /// <param name="serviceImpl">An object implementing the server-side handling logic.</param>
-    public static grpc::ServerServiceDefinition BindService(AuthServerBase serviceImpl)
+    public static grpc::ServerServiceDefinition BindService(AuthBase serviceImpl)
     {
       return grpc::ServerServiceDefinition.CreateBuilder()
           .AddMethod(__Method_Authenticate, serviceImpl.Authenticate)

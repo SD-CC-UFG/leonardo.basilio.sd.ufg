@@ -61,7 +61,7 @@ namespace Client {
 
 		}
 
-		private void ProcessLogin(Func<AuthServer.AuthServerClient, Task<UserCredential>> handler) {
+		private void ProcessLogin(Func<Auth.AuthClient, Task<UserCredential>> handler) {
 
 			this.LockWindow(true);
 

@@ -24,23 +24,45 @@ namespace Chat.Grpc {
     static NamingServerReflection() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
-            "ChJOYW1pbmdTZXJ2ZXIucHJvdG8SCUNoYXQuR3JwYyJtCg5TZXJ2aWNlUmVx",
-            "dWVzdBIzCgRuYW1lGAEgASgOMiUuQ2hhdC5HcnBjLlNlcnZpY2VSZXF1ZXN0",
-            "LlNlcnZpY2VUeXBlIiYKC1NlcnZpY2VUeXBlEggKBEFVVEgQABINCglNRVNT",
-            "QUdJTkcQASIrCg9TZXJ2aWNlUmVzcG9uc2USCgoCaXAYASABKAkSDAoEcG9y",
-            "dBgCIAEoBTJdCgxOYW1pbmdTZXJ2ZXISTQoSR2V0U2VydmljZUxvY2F0aW9u",
-            "EhkuQ2hhdC5HcnBjLlNlcnZpY2VSZXF1ZXN0GhouQ2hhdC5HcnBjLlNlcnZp",
-            "Y2VSZXNwb25zZSIAYgZwcm90bzM="));
+            "ChJOYW1pbmdTZXJ2ZXIucHJvdG8SCUNoYXQuR3JwYyI2Cg5TZXJ2aWNlUmVx",
+            "dWVzdBIkCgRuYW1lGAEgASgOMhYuQ2hhdC5HcnBjLlNlcnZpY2VUeXBlIisK",
+            "D1NlcnZpY2VSZXNwb25zZRIKCgJpcBgBIAEoCRIMCgRwb3J0GAIgASgFIlkK",
+            "E1JlZ2lzdHJhdGlvblJlcXVlc3QSJAoEbmFtZRgBIAEoDjIWLkNoYXQuR3Jw",
+            "Yy5TZXJ2aWNlVHlwZRIMCgRwb3J0GAMgASgFEg4KBmhlYWx0aBgCIAEoAiJe",
+            "ChRSZWdpc3RyYXRpb25SZXNwb25zZRIPCgdzdWNjZXNzGAEgASgIEgoKAmlw",
+            "GAIgASgJEikKBXBlZXJzGAMgAygLMhouQ2hhdC5HcnBjLlNlcnZpY2VSZXNw",
+            "b25zZSJRCgtQaW5nUmVxdWVzdBIkCgRuYW1lGAEgASgOMhYuQ2hhdC5HcnBj",
+            "LlNlcnZpY2VUeXBlEgwKBHBvcnQYAyABKAUSDgoGaGVhbHRoGAIgASgCIh8K",
+            "DFBpbmdSZXNwb25zZRIPCgdzdWNjZXNzGAEgASgIKiYKC1NlcnZpY2VUeXBl",
+            "EggKBEFVVEgQABINCglNRVNTQUdJTkcQATLoAQoGTmFtaW5nElQKD1JlZ2lz",
+            "dGVyU2VydmljZRIeLkNoYXQuR3JwYy5SZWdpc3RyYXRpb25SZXF1ZXN0Gh8u",
+            "Q2hhdC5HcnBjLlJlZ2lzdHJhdGlvblJlc3BvbnNlIgASTQoSR2V0U2Vydmlj",
+            "ZUxvY2F0aW9uEhkuQ2hhdC5HcnBjLlNlcnZpY2VSZXF1ZXN0GhouQ2hhdC5H",
+            "cnBjLlNlcnZpY2VSZXNwb25zZSIAEjkKBFBpbmcSFi5DaGF0LkdycGMuUGlu",
+            "Z1JlcXVlc3QaFy5DaGF0LkdycGMuUGluZ1Jlc3BvbnNlIgBCBloEZ3JwY2IG",
+            "cHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
-          new pbr::GeneratedClrTypeInfo(null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Chat.Grpc.ServiceRequest), global::Chat.Grpc.ServiceRequest.Parser, new[]{ "Name" }, null, new[]{ typeof(global::Chat.Grpc.ServiceRequest.Types.ServiceType) }, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Chat.Grpc.ServiceResponse), global::Chat.Grpc.ServiceResponse.Parser, new[]{ "Ip", "Port" }, null, null, null)
+          new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Chat.Grpc.ServiceType), }, new pbr::GeneratedClrTypeInfo[] {
+            new pbr::GeneratedClrTypeInfo(typeof(global::Chat.Grpc.ServiceRequest), global::Chat.Grpc.ServiceRequest.Parser, new[]{ "Name" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Chat.Grpc.ServiceResponse), global::Chat.Grpc.ServiceResponse.Parser, new[]{ "Ip", "Port" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Chat.Grpc.RegistrationRequest), global::Chat.Grpc.RegistrationRequest.Parser, new[]{ "Name", "Port", "Health" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Chat.Grpc.RegistrationResponse), global::Chat.Grpc.RegistrationResponse.Parser, new[]{ "Success", "Ip", "Peers" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Chat.Grpc.PingRequest), global::Chat.Grpc.PingRequest.Parser, new[]{ "Name", "Port", "Health" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Chat.Grpc.PingResponse), global::Chat.Grpc.PingResponse.Parser, new[]{ "Success" }, null, null, null)
           }));
     }
     #endregion
 
   }
+  #region Enums
+  public enum ServiceType {
+    [pbr::OriginalName("AUTH")] Auth = 0,
+    [pbr::OriginalName("MESSAGING")] Messaging = 1,
+  }
+
+  #endregion
+
   #region Messages
   public sealed partial class ServiceRequest : pb::IMessage<ServiceRequest> {
     private static readonly pb::MessageParser<ServiceRequest> _parser = new pb::MessageParser<ServiceRequest>(() => new ServiceRequest());
@@ -78,9 +100,9 @@ namespace Chat.Grpc {
 
     /// <summary>Field number for the "name" field.</summary>
     public const int NameFieldNumber = 1;
-    private global::Chat.Grpc.ServiceRequest.Types.ServiceType name_ = 0;
+    private global::Chat.Grpc.ServiceType name_ = 0;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public global::Chat.Grpc.ServiceRequest.Types.ServiceType Name {
+    public global::Chat.Grpc.ServiceType Name {
       get { return name_; }
       set {
         name_ = value;
@@ -162,24 +184,12 @@ namespace Chat.Grpc {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 8: {
-            name_ = (global::Chat.Grpc.ServiceRequest.Types.ServiceType) input.ReadEnum();
+            name_ = (global::Chat.Grpc.ServiceType) input.ReadEnum();
             break;
           }
         }
       }
     }
-
-    #region Nested types
-    /// <summary>Container for nested types declared in the ServiceRequest message type.</summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public static partial class Types {
-      public enum ServiceType {
-        [pbr::OriginalName("AUTH")] Auth = 0,
-        [pbr::OriginalName("MESSAGING")] Messaging = 1,
-      }
-
-    }
-    #endregion
 
   }
 
@@ -332,6 +342,682 @@ namespace Chat.Grpc {
           }
           case 16: {
             Port = input.ReadInt32();
+            break;
+          }
+        }
+      }
+    }
+
+  }
+
+  public sealed partial class RegistrationRequest : pb::IMessage<RegistrationRequest> {
+    private static readonly pb::MessageParser<RegistrationRequest> _parser = new pb::MessageParser<RegistrationRequest>(() => new RegistrationRequest());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<RegistrationRequest> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Chat.Grpc.NamingServerReflection.Descriptor.MessageTypes[2]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public RegistrationRequest() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public RegistrationRequest(RegistrationRequest other) : this() {
+      name_ = other.name_;
+      port_ = other.port_;
+      health_ = other.health_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public RegistrationRequest Clone() {
+      return new RegistrationRequest(this);
+    }
+
+    /// <summary>Field number for the "name" field.</summary>
+    public const int NameFieldNumber = 1;
+    private global::Chat.Grpc.ServiceType name_ = 0;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::Chat.Grpc.ServiceType Name {
+      get { return name_; }
+      set {
+        name_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "port" field.</summary>
+    public const int PortFieldNumber = 3;
+    private int port_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int Port {
+      get { return port_; }
+      set {
+        port_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "health" field.</summary>
+    public const int HealthFieldNumber = 2;
+    private float health_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public float Health {
+      get { return health_; }
+      set {
+        health_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as RegistrationRequest);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(RegistrationRequest other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (Name != other.Name) return false;
+      if (Port != other.Port) return false;
+      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(Health, other.Health)) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (Name != 0) hash ^= Name.GetHashCode();
+      if (Port != 0) hash ^= Port.GetHashCode();
+      if (Health != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(Health);
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+      if (Name != 0) {
+        output.WriteRawTag(8);
+        output.WriteEnum((int) Name);
+      }
+      if (Health != 0F) {
+        output.WriteRawTag(21);
+        output.WriteFloat(Health);
+      }
+      if (Port != 0) {
+        output.WriteRawTag(24);
+        output.WriteInt32(Port);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      if (Name != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Name);
+      }
+      if (Port != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(Port);
+      }
+      if (Health != 0F) {
+        size += 1 + 4;
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(RegistrationRequest other) {
+      if (other == null) {
+        return;
+      }
+      if (other.Name != 0) {
+        Name = other.Name;
+      }
+      if (other.Port != 0) {
+        Port = other.Port;
+      }
+      if (other.Health != 0F) {
+        Health = other.Health;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            name_ = (global::Chat.Grpc.ServiceType) input.ReadEnum();
+            break;
+          }
+          case 21: {
+            Health = input.ReadFloat();
+            break;
+          }
+          case 24: {
+            Port = input.ReadInt32();
+            break;
+          }
+        }
+      }
+    }
+
+  }
+
+  public sealed partial class RegistrationResponse : pb::IMessage<RegistrationResponse> {
+    private static readonly pb::MessageParser<RegistrationResponse> _parser = new pb::MessageParser<RegistrationResponse>(() => new RegistrationResponse());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<RegistrationResponse> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Chat.Grpc.NamingServerReflection.Descriptor.MessageTypes[3]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public RegistrationResponse() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public RegistrationResponse(RegistrationResponse other) : this() {
+      success_ = other.success_;
+      ip_ = other.ip_;
+      peers_ = other.peers_.Clone();
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public RegistrationResponse Clone() {
+      return new RegistrationResponse(this);
+    }
+
+    /// <summary>Field number for the "success" field.</summary>
+    public const int SuccessFieldNumber = 1;
+    private bool success_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Success {
+      get { return success_; }
+      set {
+        success_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "ip" field.</summary>
+    public const int IpFieldNumber = 2;
+    private string ip_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public string Ip {
+      get { return ip_; }
+      set {
+        ip_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "peers" field.</summary>
+    public const int PeersFieldNumber = 3;
+    private static readonly pb::FieldCodec<global::Chat.Grpc.ServiceResponse> _repeated_peers_codec
+        = pb::FieldCodec.ForMessage(26, global::Chat.Grpc.ServiceResponse.Parser);
+    private readonly pbc::RepeatedField<global::Chat.Grpc.ServiceResponse> peers_ = new pbc::RepeatedField<global::Chat.Grpc.ServiceResponse>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public pbc::RepeatedField<global::Chat.Grpc.ServiceResponse> Peers {
+      get { return peers_; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as RegistrationResponse);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(RegistrationResponse other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (Success != other.Success) return false;
+      if (Ip != other.Ip) return false;
+      if(!peers_.Equals(other.peers_)) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (Success != false) hash ^= Success.GetHashCode();
+      if (Ip.Length != 0) hash ^= Ip.GetHashCode();
+      hash ^= peers_.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+      if (Success != false) {
+        output.WriteRawTag(8);
+        output.WriteBool(Success);
+      }
+      if (Ip.Length != 0) {
+        output.WriteRawTag(18);
+        output.WriteString(Ip);
+      }
+      peers_.WriteTo(output, _repeated_peers_codec);
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      if (Success != false) {
+        size += 1 + 1;
+      }
+      if (Ip.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Ip);
+      }
+      size += peers_.CalculateSize(_repeated_peers_codec);
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(RegistrationResponse other) {
+      if (other == null) {
+        return;
+      }
+      if (other.Success != false) {
+        Success = other.Success;
+      }
+      if (other.Ip.Length != 0) {
+        Ip = other.Ip;
+      }
+      peers_.Add(other.peers_);
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            Success = input.ReadBool();
+            break;
+          }
+          case 18: {
+            Ip = input.ReadString();
+            break;
+          }
+          case 26: {
+            peers_.AddEntriesFrom(input, _repeated_peers_codec);
+            break;
+          }
+        }
+      }
+    }
+
+  }
+
+  public sealed partial class PingRequest : pb::IMessage<PingRequest> {
+    private static readonly pb::MessageParser<PingRequest> _parser = new pb::MessageParser<PingRequest>(() => new PingRequest());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<PingRequest> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Chat.Grpc.NamingServerReflection.Descriptor.MessageTypes[4]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public PingRequest() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public PingRequest(PingRequest other) : this() {
+      name_ = other.name_;
+      port_ = other.port_;
+      health_ = other.health_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public PingRequest Clone() {
+      return new PingRequest(this);
+    }
+
+    /// <summary>Field number for the "name" field.</summary>
+    public const int NameFieldNumber = 1;
+    private global::Chat.Grpc.ServiceType name_ = 0;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::Chat.Grpc.ServiceType Name {
+      get { return name_; }
+      set {
+        name_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "port" field.</summary>
+    public const int PortFieldNumber = 3;
+    private int port_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int Port {
+      get { return port_; }
+      set {
+        port_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "health" field.</summary>
+    public const int HealthFieldNumber = 2;
+    private float health_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public float Health {
+      get { return health_; }
+      set {
+        health_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as PingRequest);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(PingRequest other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (Name != other.Name) return false;
+      if (Port != other.Port) return false;
+      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(Health, other.Health)) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (Name != 0) hash ^= Name.GetHashCode();
+      if (Port != 0) hash ^= Port.GetHashCode();
+      if (Health != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(Health);
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+      if (Name != 0) {
+        output.WriteRawTag(8);
+        output.WriteEnum((int) Name);
+      }
+      if (Health != 0F) {
+        output.WriteRawTag(21);
+        output.WriteFloat(Health);
+      }
+      if (Port != 0) {
+        output.WriteRawTag(24);
+        output.WriteInt32(Port);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      if (Name != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Name);
+      }
+      if (Port != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(Port);
+      }
+      if (Health != 0F) {
+        size += 1 + 4;
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(PingRequest other) {
+      if (other == null) {
+        return;
+      }
+      if (other.Name != 0) {
+        Name = other.Name;
+      }
+      if (other.Port != 0) {
+        Port = other.Port;
+      }
+      if (other.Health != 0F) {
+        Health = other.Health;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            name_ = (global::Chat.Grpc.ServiceType) input.ReadEnum();
+            break;
+          }
+          case 21: {
+            Health = input.ReadFloat();
+            break;
+          }
+          case 24: {
+            Port = input.ReadInt32();
+            break;
+          }
+        }
+      }
+    }
+
+  }
+
+  public sealed partial class PingResponse : pb::IMessage<PingResponse> {
+    private static readonly pb::MessageParser<PingResponse> _parser = new pb::MessageParser<PingResponse>(() => new PingResponse());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<PingResponse> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Chat.Grpc.NamingServerReflection.Descriptor.MessageTypes[5]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public PingResponse() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public PingResponse(PingResponse other) : this() {
+      success_ = other.success_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public PingResponse Clone() {
+      return new PingResponse(this);
+    }
+
+    /// <summary>Field number for the "success" field.</summary>
+    public const int SuccessFieldNumber = 1;
+    private bool success_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Success {
+      get { return success_; }
+      set {
+        success_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as PingResponse);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(PingResponse other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (Success != other.Success) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (Success != false) hash ^= Success.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+      if (Success != false) {
+        output.WriteRawTag(8);
+        output.WriteBool(Success);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      if (Success != false) {
+        size += 1 + 1;
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(PingResponse other) {
+      if (other == null) {
+        return;
+      }
+      if (other.Success != false) {
+        Success = other.Success;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            Success = input.ReadBool();
             break;
           }
         }

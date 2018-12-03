@@ -8,12 +8,23 @@
 using grpc = global::Grpc.Core;
 
 namespace Chat.Grpc {
-  public static partial class NamingServer
+  public static partial class Naming
   {
-    static readonly string __ServiceName = "Chat.Grpc.NamingServer";
+    static readonly string __ServiceName = "Chat.Grpc.Naming";
 
+    static readonly grpc::Marshaller<global::Chat.Grpc.RegistrationRequest> __Marshaller_Chat_Grpc_RegistrationRequest = grpc::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Chat.Grpc.RegistrationRequest.Parser.ParseFrom);
+    static readonly grpc::Marshaller<global::Chat.Grpc.RegistrationResponse> __Marshaller_Chat_Grpc_RegistrationResponse = grpc::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Chat.Grpc.RegistrationResponse.Parser.ParseFrom);
     static readonly grpc::Marshaller<global::Chat.Grpc.ServiceRequest> __Marshaller_Chat_Grpc_ServiceRequest = grpc::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Chat.Grpc.ServiceRequest.Parser.ParseFrom);
     static readonly grpc::Marshaller<global::Chat.Grpc.ServiceResponse> __Marshaller_Chat_Grpc_ServiceResponse = grpc::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Chat.Grpc.ServiceResponse.Parser.ParseFrom);
+    static readonly grpc::Marshaller<global::Chat.Grpc.PingRequest> __Marshaller_Chat_Grpc_PingRequest = grpc::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Chat.Grpc.PingRequest.Parser.ParseFrom);
+    static readonly grpc::Marshaller<global::Chat.Grpc.PingResponse> __Marshaller_Chat_Grpc_PingResponse = grpc::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Chat.Grpc.PingResponse.Parser.ParseFrom);
+
+    static readonly grpc::Method<global::Chat.Grpc.RegistrationRequest, global::Chat.Grpc.RegistrationResponse> __Method_RegisterService = new grpc::Method<global::Chat.Grpc.RegistrationRequest, global::Chat.Grpc.RegistrationResponse>(
+        grpc::MethodType.Unary,
+        __ServiceName,
+        "RegisterService",
+        __Marshaller_Chat_Grpc_RegistrationRequest,
+        __Marshaller_Chat_Grpc_RegistrationResponse);
 
     static readonly grpc::Method<global::Chat.Grpc.ServiceRequest, global::Chat.Grpc.ServiceResponse> __Method_GetServiceLocation = new grpc::Method<global::Chat.Grpc.ServiceRequest, global::Chat.Grpc.ServiceResponse>(
         grpc::MethodType.Unary,
@@ -22,45 +33,78 @@ namespace Chat.Grpc {
         __Marshaller_Chat_Grpc_ServiceRequest,
         __Marshaller_Chat_Grpc_ServiceResponse);
 
+    static readonly grpc::Method<global::Chat.Grpc.PingRequest, global::Chat.Grpc.PingResponse> __Method_Ping = new grpc::Method<global::Chat.Grpc.PingRequest, global::Chat.Grpc.PingResponse>(
+        grpc::MethodType.Unary,
+        __ServiceName,
+        "Ping",
+        __Marshaller_Chat_Grpc_PingRequest,
+        __Marshaller_Chat_Grpc_PingResponse);
+
     /// <summary>Service descriptor</summary>
     public static global::Google.Protobuf.Reflection.ServiceDescriptor Descriptor
     {
       get { return global::Chat.Grpc.NamingServerReflection.Descriptor.Services[0]; }
     }
 
-    /// <summary>Base class for server-side implementations of NamingServer</summary>
-    public abstract partial class NamingServerBase
+    /// <summary>Base class for server-side implementations of Naming</summary>
+    public abstract partial class NamingBase
     {
+      public virtual global::System.Threading.Tasks.Task<global::Chat.Grpc.RegistrationResponse> RegisterService(global::Chat.Grpc.RegistrationRequest request, grpc::ServerCallContext context)
+      {
+        throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
+      }
+
       public virtual global::System.Threading.Tasks.Task<global::Chat.Grpc.ServiceResponse> GetServiceLocation(global::Chat.Grpc.ServiceRequest request, grpc::ServerCallContext context)
+      {
+        throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
+      }
+
+      public virtual global::System.Threading.Tasks.Task<global::Chat.Grpc.PingResponse> Ping(global::Chat.Grpc.PingRequest request, grpc::ServerCallContext context)
       {
         throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
       }
 
     }
 
-    /// <summary>Client for NamingServer</summary>
-    public partial class NamingServerClient : grpc::ClientBase<NamingServerClient>
+    /// <summary>Client for Naming</summary>
+    public partial class NamingClient : grpc::ClientBase<NamingClient>
     {
-      /// <summary>Creates a new client for NamingServer</summary>
+      /// <summary>Creates a new client for Naming</summary>
       /// <param name="channel">The channel to use to make remote calls.</param>
-      public NamingServerClient(grpc::Channel channel) : base(channel)
+      public NamingClient(grpc::Channel channel) : base(channel)
       {
       }
-      /// <summary>Creates a new client for NamingServer that uses a custom <c>CallInvoker</c>.</summary>
+      /// <summary>Creates a new client for Naming that uses a custom <c>CallInvoker</c>.</summary>
       /// <param name="callInvoker">The callInvoker to use to make remote calls.</param>
-      public NamingServerClient(grpc::CallInvoker callInvoker) : base(callInvoker)
+      public NamingClient(grpc::CallInvoker callInvoker) : base(callInvoker)
       {
       }
       /// <summary>Protected parameterless constructor to allow creation of test doubles.</summary>
-      protected NamingServerClient() : base()
+      protected NamingClient() : base()
       {
       }
       /// <summary>Protected constructor to allow creation of configured clients.</summary>
       /// <param name="configuration">The client configuration.</param>
-      protected NamingServerClient(ClientBaseConfiguration configuration) : base(configuration)
+      protected NamingClient(ClientBaseConfiguration configuration) : base(configuration)
       {
       }
 
+      public virtual global::Chat.Grpc.RegistrationResponse RegisterService(global::Chat.Grpc.RegistrationRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return RegisterService(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      public virtual global::Chat.Grpc.RegistrationResponse RegisterService(global::Chat.Grpc.RegistrationRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.BlockingUnaryCall(__Method_RegisterService, null, options, request);
+      }
+      public virtual grpc::AsyncUnaryCall<global::Chat.Grpc.RegistrationResponse> RegisterServiceAsync(global::Chat.Grpc.RegistrationRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return RegisterServiceAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      public virtual grpc::AsyncUnaryCall<global::Chat.Grpc.RegistrationResponse> RegisterServiceAsync(global::Chat.Grpc.RegistrationRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.AsyncUnaryCall(__Method_RegisterService, null, options, request);
+      }
       public virtual global::Chat.Grpc.ServiceResponse GetServiceLocation(global::Chat.Grpc.ServiceRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
       {
         return GetServiceLocation(request, new grpc::CallOptions(headers, deadline, cancellationToken));
@@ -77,19 +121,37 @@ namespace Chat.Grpc {
       {
         return CallInvoker.AsyncUnaryCall(__Method_GetServiceLocation, null, options, request);
       }
-      /// <summary>Creates a new instance of client from given <c>ClientBaseConfiguration</c>.</summary>
-      protected override NamingServerClient NewInstance(ClientBaseConfiguration configuration)
+      public virtual global::Chat.Grpc.PingResponse Ping(global::Chat.Grpc.PingRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
       {
-        return new NamingServerClient(configuration);
+        return Ping(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      public virtual global::Chat.Grpc.PingResponse Ping(global::Chat.Grpc.PingRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.BlockingUnaryCall(__Method_Ping, null, options, request);
+      }
+      public virtual grpc::AsyncUnaryCall<global::Chat.Grpc.PingResponse> PingAsync(global::Chat.Grpc.PingRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return PingAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      public virtual grpc::AsyncUnaryCall<global::Chat.Grpc.PingResponse> PingAsync(global::Chat.Grpc.PingRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.AsyncUnaryCall(__Method_Ping, null, options, request);
+      }
+      /// <summary>Creates a new instance of client from given <c>ClientBaseConfiguration</c>.</summary>
+      protected override NamingClient NewInstance(ClientBaseConfiguration configuration)
+      {
+        return new NamingClient(configuration);
       }
     }
 
     /// <summary>Creates service definition that can be registered with a server</summary>
     /// <param name="serviceImpl">An object implementing the server-side handling logic.</param>
-    public static grpc::ServerServiceDefinition BindService(NamingServerBase serviceImpl)
+    public static grpc::ServerServiceDefinition BindService(NamingBase serviceImpl)
     {
       return grpc::ServerServiceDefinition.CreateBuilder()
-          .AddMethod(__Method_GetServiceLocation, serviceImpl.GetServiceLocation).Build();
+          .AddMethod(__Method_RegisterService, serviceImpl.RegisterService)
+          .AddMethod(__Method_GetServiceLocation, serviceImpl.GetServiceLocation)
+          .AddMethod(__Method_Ping, serviceImpl.Ping).Build();
     }
 
   }

@@ -7,9 +7,9 @@ namespace Client {
 
 	internal static class Services {
 
-		private async static Task<ServiceResponse> GetServiceLocation(ServiceRequest.Types.ServiceType serviceType, Action<Exception> exceptionHandler = null) {
+		private async static Task<ServiceResponse> GetServiceLocation(ServiceType serviceType, Action<Exception> exceptionHandler = null) {
 
-			var naming = new NamingServer.NamingServerClient(
+			var naming = new Naming.NamingClient(
 				new Channel("127.0.0.1", 7777, ChannelCredentials.Insecure)
 			);
 
@@ -19,21 +19,21 @@ namespace Client {
 
 		}
 
-		public async static Task<AuthServer.AuthServerClient> GetAuthentication() {
+		public async static Task<Auth.AuthClient> GetAuthentication() {
 
-			var location = await GetServiceLocation(ServiceRequest.Types.ServiceType.Auth);
+			var location = await GetServiceLocation(ServiceType.Auth);
 
-			return new AuthServer.AuthServerClient(
+			return new Auth.AuthClient(
 				new Channel(location.Ip, location.Port, ChannelCredentials.Insecure)
 			);
 
 		}
 
-		public async static Task<MessagingServer.MessagingServerClient> GetMessaging() {
+		public async static Task<Messaging.MessagingClient> GetMessaging() {
 
-			var location = await GetServiceLocation(ServiceRequest.Types.ServiceType.Messaging);
+			var location = await GetServiceLocation(ServiceType.Messaging);
 
-			return new MessagingServer.MessagingServerClient(
+			return new Messaging.MessagingClient(
 				new Channel(location.Ip, location.Port, ChannelCredentials.Insecure)
 			);
 
