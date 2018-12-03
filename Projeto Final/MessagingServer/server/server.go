@@ -3,13 +3,20 @@ package server
 import (
 	"context"
 
+	"fmt"
 	pb "github.com/sd-cc-ufg/leonardo.basilio.sd.ufg/ProjetoFinal/MessagingServer/grpc"
 	"google.golang.org/grpc"
 	"io"
 	"log"
+	"net"
 	"sync"
 	"time"
 )
+
+type userTopicKey struct {
+	username string
+	topic    string
+}
 
 type MessagingServer struct {
 	mutex        *sync.Mutex
@@ -18,6 +25,7 @@ type MessagingServer struct {
 	ip           string
 	port         int
 	peers        []*pb.ServiceResponse
+	topicsUser   map[userTopicKey]bool
 }
 
 func NewMessagingServer(port int) MessagingServer {
@@ -26,35 +34,71 @@ func NewMessagingServer(port int) MessagingServer {
 		userChannels: make(map[string]chan *pb.ChatMessage),
 		chatChannel:  make(chan *pb.ChatMessage),
 		port:         port,
+		topicsUser:   make(map[userTopicKey]bool),
 	}
 }
 
-func (s *MessagingServer) StartLoop() {
+func (s *MessagingServer) Start() {
+	go s.loopMessages()
+	go s.registerNamingServer()
+
+	// configure grpc
+	listen, err := net.Listen("tcp", fmt.Sprintf(":%d", s.port))
+
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer listen.Close()
+
+	grpcServer := grpc.NewServer()
+	pb.RegisterMessagingServer(grpcServer, s)
+
+	log.Printf("Listening on port %v.\n", s.port)
+	grpcServer.Serve(listen)
+}
+
+func (s *MessagingServer) loopMessages() {
 	log.Printf("Starting looping to receive messages of users.\n")
 
-	go func() {
-		for {
-			// recebe mensagem enviada por algum usuario
-			chatMessage := <-s.chatChannel
+	for {
+		// receive message from a user
+		chatMessage := <-s.chatChannel
+		username := chatMessage.UserCredential.UserName
 
-			log.Printf("Message received: %v\n", chatMessage)
+		if chatMessage.GetControl() != nil {
+			switch chatMessage.GetControl().GetType() {
+			case pb.ControlMessageType_JOINED:
+				s.topicsUser[userTopicKey{username, chatMessage.Topic}] = true
+			case pb.ControlMessageType_QUITTED:
+				s.topicsUser[userTopicKey{username, chatMessage.Topic}] = false
+			}
+		} else if chatMessage.GetText() != nil {
+			if s.topicsUser[userTopicKey{username, chatMessage.Topic}] == false {
+				// user trying to send message to topic he's not joined
 
-			s.mutex.Lock()
-			// percorre todos os channels de usuarios ativos
-			// e envia a mensagem
-			for _, userChannel := range s.userChannels {
+				log.Printf("User %s is not joined in topic %s, ignoring message.\n", username, chatMessage.Topic)
+				continue
+			}
+		}
+
+		log.Printf("Message received: %v\n", chatMessage)
+
+		// forward the message to interested users
+		s.mutex.Lock()
+		for username, userChannel := range s.userChannels {
+			v, ok := s.topicsUser[userTopicKey{username, chatMessage.Topic}]
+			if ok && v {
 				userChannel <- chatMessage
 			}
-			s.mutex.Unlock()
 		}
-	}()
+		s.mutex.Unlock()
+	}
+}
 
-	duration, _ := time.ParseDuration("2s")
-	time.Sleep(duration)
-
+func (s *MessagingServer) registerNamingServer() {
 	// register messaging service in naming service
 
-	conn, err := grpc.Dial("naming:7777", grpc.WithInsecure())
+	conn, err := grpc.Dial("localhost:7777", grpc.WithInsecure())
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -73,23 +117,25 @@ func (s *MessagingServer) StartLoop() {
 		log.Fatalf("Registration in naming server failed.\n")
 	}
 
+	log.Println("Registration in naming server.")
+
 	s.ip = regRes.Ip
 	s.peers = regRes.Peers
 
 	// start goroutine to ping naming service periodically
 	go func() {
 		for {
-			duration, _ := time.ParseDuration("2s")
-			time.Sleep(duration) // sleep for 2 seconds
+			duration, _ := time.ParseDuration("5s")
+			time.Sleep(duration) // sleep for 5 seconds
 
-			conn, err := grpc.Dial("naming:7777", grpc.WithInsecure())
+			conn, err := grpc.Dial("localhost:7777", grpc.WithInsecure())
 			if err != nil {
 				log.Fatal(err)
 			}
 
 			client := pb.NewNamingClient(conn)
 
-			log.Print("Ping naming server.")
+			// log.Print("Ping naming server.")
 			pingReq := &pb.PingRequest{Name: pb.ServiceType_MESSAGING, Port: int32(s.port), Health: 0.8}
 			pingRes, err := client.Ping(context.Background(), pingReq)
 
@@ -106,14 +152,45 @@ func (s *MessagingServer) StartLoop() {
 	}()
 }
 
-func (s *MessagingServer) sendMessages(username string, stream pb.Messaging_TalkAndListenServer) {
-	log.Printf("Create channel to user %s.\n", username)
+func (s *MessagingServer) addUser(username string) {
+	if username != "" {
+		s.mutex.Lock()
+		s.userChannels[username] = make(chan *pb.ChatMessage)
+		s.mutex.Unlock()
+	}
+}
 
-	channel := make(chan *pb.ChatMessage)
+func (s *MessagingServer) closeUser(username string) {
+	if username != "" {
+		s.mutex.Lock()
+		channel, ok := s.userChannels[username]
+		if ok {
+			close(channel)
+		}
+		delete(s.userChannels, username)
+		s.mutex.Unlock()
+	}
+}
 
+func (s *MessagingServer) getUserChannel(username string) (channel chan *pb.ChatMessage, ok bool) {
+	if username == "" {
+		return nil, false
+	}
 	s.mutex.Lock()
-	s.userChannels[username] = channel
+	channel, ok = s.userChannels[username]
 	s.mutex.Unlock()
+	return
+}
+
+func (s *MessagingServer) sendMessagesUser(username string, stream pb.Messaging_TalkAndListenServer) {
+	s.addUser(username)
+
+	channel, ok := s.getUserChannel(username)
+
+	if !ok {
+		log.Printf("Error: request send messages to user that do not exist (user %s)\n", username)
+		return
+	}
 
 	// envia mensagens do chat para o usuario
 	for {
@@ -127,45 +204,20 @@ func (s *MessagingServer) sendMessages(username string, stream pb.Messaging_Talk
 			break
 		}
 	}
-
-	s.mutex.Lock()
-	delete(s.userChannels, username)
-	s.mutex.Unlock()
 }
 
 func (s *MessagingServer) TalkAndListen(stream pb.Messaging_TalkAndListenServer) error {
 	var username string
 
-	in, err := stream.Recv()
-
-	if err != nil {
-		log.Println(err)
-		return err
-	}
-
-	if in.UserCredential != nil {
-		if in.Type != pb.ChatMessageType_CONTROL || in.GetControl().Type != pb.ControlMessageType_JOINED {
-			log.Printf("First message is not a control message of type JOINED.\n")
-			return nil
-		}
-		username = in.UserCredential.UserName
-		go s.sendMessages(username, stream)
-	} else {
-		log.Printf("User %s disconnect by: without credential.\n", username)
-		return nil
-	}
-
 	for {
 		in, err := stream.Recv()
-		if err == io.EOF || err != nil {
-			// em caso de erro (ou EOF), fecha o channel do usuario
-			// liberando go routine que envia mensagens chat -> usuario
-			s.mutex.Lock()
-			channel, ok := s.userChannels[username]
-			if ok {
-				close(channel)
-			}
-			s.mutex.Unlock()
+
+		if err != nil {
+			// close channel of user in case of EOF or any error
+			// with channel closed the goroutine that send messages
+			// to this user can exit
+
+			s.closeUser(username)
 
 			if err != io.EOF {
 				log.Println(err)
@@ -175,7 +227,19 @@ func (s *MessagingServer) TalkAndListen(stream pb.Messaging_TalkAndListenServer)
 			}
 		}
 
-		// envia mensagem do usuario para o chat
+		// verify user credentials here
+		if in.UserCredential == nil {
+			log.Printf("User %s disconnect by: without credential.\n", username)
+			s.closeUser(username)
+			return nil
+		}
+
+		if username == "" {
+			username = in.UserCredential.UserName
+			go s.sendMessagesUser(username, stream)
+		}
+
+		// send to main channel, where messages are processed
 		s.chatChannel <- in
 	}
 
