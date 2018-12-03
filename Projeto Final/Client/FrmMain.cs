@@ -82,6 +82,7 @@ namespace Client {
 
                 this.SendChatMessage(new ChatMessage() {
                     Type = ChatMessageType.Text,
+                    Topic = this.currentChannel?.Topic,
                     Text = new TextMessage() {
                         Text = messageString
                     },
