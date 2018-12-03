@@ -70,6 +70,21 @@ func (s *MessagingServer) loopMessages() {
 		chatMessage := <-s.chatChannel
 		username := chatMessage.UserCredential.UserName
 
+		if chatMessage.GetControl() != nil {
+			if chatMessage.GetControl().GetType() == pb.ControlMessageType_JOINED {
+				s.topicsUser[userTopicKey{username, chatMessage.Topic}] = true
+			}
+		}
+
+		if chatMessage.GetText() != nil {
+			if s.topicsUser[userTopicKey{username, chatMessage.Topic}] == false {
+				// user trying to send message to topic he's not joined
+
+				log.Printf("User %s is not joined in topic %s, ignoring message.\n", username, chatMessage.Topic)
+				continue
+			}
+		}
+
 		log.Printf("Message received: %v\n", chatMessage)
 
 		// forward the message to interested users
@@ -85,20 +100,9 @@ func (s *MessagingServer) loopMessages() {
 		// forward the message to interested broker
 
 		// verify if it is a control message
-
 		if chatMessage.GetControl() != nil {
-			switch chatMessage.GetControl().GetType() {
-			case pb.ControlMessageType_JOINED:
-				s.topicsUser[userTopicKey{username, chatMessage.Topic}] = true
-			case pb.ControlMessageType_QUITTED:
+			if chatMessage.GetControl().GetType() == pb.ControlMessageType_QUITTED {
 				s.topicsUser[userTopicKey{username, chatMessage.Topic}] = false
-			}
-		} else if chatMessage.GetText() != nil {
-			if s.topicsUser[userTopicKey{username, chatMessage.Topic}] == false {
-				// user trying to send message to topic he's not joined
-
-				log.Printf("User %s is not joined in topic %s, ignoring message.\n", username, chatMessage.Topic)
-				continue
 			}
 		}
 	}
