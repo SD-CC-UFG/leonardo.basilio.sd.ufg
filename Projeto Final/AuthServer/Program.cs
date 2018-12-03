@@ -11,7 +11,7 @@ namespace AuthServer {
 			var server = new Grpc.Core.Server() {
 				
 				Services = {
-                    Chat.Grpc.Auth.BindService(new AuthServer("172.17.0.2"))
+                    Chat.Grpc.Auth.BindService(new AuthServer("mongo"))
 				},
 
 				Ports = {                   
@@ -24,7 +24,7 @@ namespace AuthServer {
 
             //=================================
 
-            var naming = new Chat.Grpc.Naming.NamingClient(new Grpc.Core.Channel("localhost:7777", Grpc.Core.ChannelCredentials.Insecure));
+            var naming = new Chat.Grpc.Naming.NamingClient(new Grpc.Core.Channel("naming:7777", Grpc.Core.ChannelCredentials.Insecure));
 
             if (naming.RegisterService(new Chat.Grpc.RegistrationRequest() {
                 Health = 100,

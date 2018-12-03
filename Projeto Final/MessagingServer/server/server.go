@@ -18,6 +18,11 @@ type userTopicKey struct {
 	topic    string
 }
 
+type brokerSub struct {
+	ip   string
+	port int
+}
+
 type MessagingServer struct {
 	mutex        *sync.Mutex
 	userChannels map[string]chan *pb.ChatMessage
@@ -65,6 +70,8 @@ func (s *MessagingServer) loopMessages() {
 		chatMessage := <-s.chatChannel
 		username := chatMessage.UserCredential.UserName
 
+		log.Printf("Message received: %v\n", chatMessage)
+
 		if chatMessage.GetControl() != nil {
 			switch chatMessage.GetControl().GetType() {
 			case pb.ControlMessageType_JOINED:
@@ -81,8 +88,6 @@ func (s *MessagingServer) loopMessages() {
 			}
 		}
 
-		log.Printf("Message received: %v\n", chatMessage)
-
 		// forward the message to interested users
 		s.mutex.Lock()
 		for username, userChannel := range s.userChannels {
@@ -92,13 +97,16 @@ func (s *MessagingServer) loopMessages() {
 			}
 		}
 		s.mutex.Unlock()
+
+		// forward the message to interested broker
 	}
 }
 
 func (s *MessagingServer) registerNamingServer() {
 	// register messaging service in naming service
+	const namingServerAddr = "naming:7777"
 
-	conn, err := grpc.Dial("localhost:7777", grpc.WithInsecure())
+	conn, err := grpc.Dial(namingServerAddr, grpc.WithInsecure())
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -128,7 +136,7 @@ func (s *MessagingServer) registerNamingServer() {
 			duration, _ := time.ParseDuration("5s")
 			time.Sleep(duration) // sleep for 5 seconds
 
-			conn, err := grpc.Dial("localhost:7777", grpc.WithInsecure())
+			conn, err := grpc.Dial(namingServerAddr, grpc.WithInsecure())
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -259,5 +267,7 @@ func (s *MessagingServer) Unsubscribe(ctx context.Context, request *pb.Subscribe
 func (s *MessagingServer) Publish(ctx context.Context, chatMessage *pb.ChatMessage) (*pb.PublishResponse, error) {
 	// verify the users interested in the topic of this message
 	// send message to this users' channels
+
+	s.chatChannel <- chatMessage
 	return nil, nil
 }
