@@ -72,6 +72,20 @@ func (s *MessagingServer) loopMessages() {
 
 		log.Printf("Message received: %v\n", chatMessage)
 
+		// forward the message to interested users
+		s.mutex.Lock()
+		for username, userChannel := range s.userChannels {
+			v, ok := s.topicsUser[userTopicKey{username, chatMessage.Topic}]
+			if ok && v {
+				userChannel <- chatMessage
+			}
+		}
+		s.mutex.Unlock()
+
+		// forward the message to interested broker
+
+		// verify if it is a control message
+
 		if chatMessage.GetControl() != nil {
 			switch chatMessage.GetControl().GetType() {
 			case pb.ControlMessageType_JOINED:
@@ -87,18 +101,6 @@ func (s *MessagingServer) loopMessages() {
 				continue
 			}
 		}
-
-		// forward the message to interested users
-		s.mutex.Lock()
-		for username, userChannel := range s.userChannels {
-			v, ok := s.topicsUser[userTopicKey{username, chatMessage.Topic}]
-			if ok && v {
-				userChannel <- chatMessage
-			}
-		}
-		s.mutex.Unlock()
-
-		// forward the message to interested broker
 	}
 }
 
