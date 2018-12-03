@@ -2,15 +2,16 @@ version: '3'
 services:
   messaging:
     build: ./MessagingServer
-    ports:
-      - "8888:8888"
+    depends_on:
+      - "naming"
   naming:
     build: ./NamingServer
     ports:
       - "7777:7777"
   auth:
     build: ./AuthServer
-    ports:
-      - "50001:50001"
+    depends_on:
+      - "naming"
+      - "mongo"
   mongo:
     image: "mongo"
