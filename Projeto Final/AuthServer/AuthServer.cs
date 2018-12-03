@@ -7,7 +7,7 @@ using MongoDB.Bson.Serialization;
 
 namespace AuthServer {
 	
-	public class AuthServer : Chat.Grpc.AuthServer.AuthServerBase {
+	public class AuthServer : Chat.Grpc.Auth.AuthBase {
 
 		private static MongoClient mongoClient;
 		private static IMongoCollection<UserLogin> usersCollection;
@@ -162,7 +162,7 @@ namespace AuthServer {
 
 		private UserCredential SignCredential(UserCredential credential){
 			         
-			credential.Signature = this.ComputeSignature(credential);
+            credential.Signature = this.ComputeSignature(credential);
 
 			return credential;
 
@@ -170,18 +170,18 @@ namespace AuthServer {
 
 		private bool CheckSignature(UserCredential credential){
 
-			return credential.Signature == this.ComputeSignature(credential);
+            return credential.Signature.Equals(this.ComputeSignature(credential));
 
 		}
 
-		private string ComputeSignature(UserCredential credential){
+		private Google.Protobuf.ByteString ComputeSignature(UserCredential credential){
 
 			var hmac = new System.Security.Cryptography.HMACSHA256(signingKey);
 
             var data = System.Text.Encoding.UTF8.GetBytes(credential.UserName + "\n" +
                                                           credential.Expiration.ToString());
                                                           
-			return Convert.ToBase64String(hmac.ComputeHash(data));
+            return Google.Protobuf.ByteString.CopyFrom(hmac.ComputeHash(data));
 
 		}
 

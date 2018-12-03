@@ -24,20 +24,21 @@ namespace Chat.Grpc {
     static AuthServerReflection() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
-            "ChBBdXRoU2VydmVyLnByb3RvEglDaGF0LkdycGMiMAoJVXNlckxvZ2luEhEK",
-            "CXVzZXJfbmFtZRgBIAEoCRIQCghwYXNzd29yZBgCIAEoCSJZCg5Vc2VyQ3Jl",
-            "ZGVudGlhbBIRCgl1c2VyX25hbWUYASABKAkSEgoKZXhwaXJhdGlvbhgCIAEo",
-            "BRIRCglzaWduYXR1cmUYAyABKAkSDQoFZXJyb3IYBCABKAky1wEKCkF1dGhT",
-            "ZXJ2ZXISQQoMQXV0aGVudGljYXRlEhQuQ2hhdC5HcnBjLlVzZXJMb2dpbhoZ",
-            "LkNoYXQuR3JwYy5Vc2VyQ3JlZGVudGlhbCIAEjsKBlNpZ25VcBIULkNoYXQu",
-            "R3JwYy5Vc2VyTG9naW4aGS5DaGF0LkdycGMuVXNlckNyZWRlbnRpYWwiABJJ",
-            "Cg9SZW5ld0NyZWRlbnRpYWwSGS5DaGF0LkdycGMuVXNlckNyZWRlbnRpYWwa",
-            "GS5DaGF0LkdycGMuVXNlckNyZWRlbnRpYWwiAGIGcHJvdG8z"));
+            "ChBBdXRoU2VydmVyLnByb3RvEglDaGF0LkdycGMiRAoJVXNlckxvZ2luEhEK",
+            "CXVzZXJfbmFtZRgBIAEoCRIQCghwYXNzd29yZBgCIAEoCRISCgpwdWJsaWNf",
+            "a2V5GAMgASgMIm0KDlVzZXJDcmVkZW50aWFsEhEKCXVzZXJfbmFtZRgBIAEo",
+            "CRISCgpleHBpcmF0aW9uGAIgASgFEhIKCnB1YmxpY19rZXkYBSABKAwSEQoJ",
+            "c2lnbmF0dXJlGAMgASgMEg0KBWVycm9yGAQgASgJMtEBCgRBdXRoEkEKDEF1",
+            "dGhlbnRpY2F0ZRIULkNoYXQuR3JwYy5Vc2VyTG9naW4aGS5DaGF0LkdycGMu",
+            "VXNlckNyZWRlbnRpYWwiABI7CgZTaWduVXASFC5DaGF0LkdycGMuVXNlckxv",
+            "Z2luGhkuQ2hhdC5HcnBjLlVzZXJDcmVkZW50aWFsIgASSQoPUmVuZXdDcmVk",
+            "ZW50aWFsEhkuQ2hhdC5HcnBjLlVzZXJDcmVkZW50aWFsGhkuQ2hhdC5HcnBj",
+            "LlVzZXJDcmVkZW50aWFsIgBCBloEZ3JwY2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Chat.Grpc.UserLogin), global::Chat.Grpc.UserLogin.Parser, new[]{ "UserName", "Password" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Chat.Grpc.UserCredential), global::Chat.Grpc.UserCredential.Parser, new[]{ "UserName", "Expiration", "Signature", "Error" }, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Chat.Grpc.UserLogin), global::Chat.Grpc.UserLogin.Parser, new[]{ "UserName", "Password", "PublicKey" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Chat.Grpc.UserCredential), global::Chat.Grpc.UserCredential.Parser, new[]{ "UserName", "Expiration", "PublicKey", "Signature", "Error" }, null, null, null)
           }));
     }
     #endregion
@@ -71,6 +72,7 @@ namespace Chat.Grpc {
     public UserLogin(UserLogin other) : this() {
       userName_ = other.userName_;
       password_ = other.password_;
+      publicKey_ = other.publicKey_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -101,6 +103,17 @@ namespace Chat.Grpc {
       }
     }
 
+    /// <summary>Field number for the "public_key" field.</summary>
+    public const int PublicKeyFieldNumber = 3;
+    private pb::ByteString publicKey_ = pb::ByteString.Empty;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public pb::ByteString PublicKey {
+      get { return publicKey_; }
+      set {
+        publicKey_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
       return Equals(other as UserLogin);
@@ -116,6 +129,7 @@ namespace Chat.Grpc {
       }
       if (UserName != other.UserName) return false;
       if (Password != other.Password) return false;
+      if (PublicKey != other.PublicKey) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -124,6 +138,7 @@ namespace Chat.Grpc {
       int hash = 1;
       if (UserName.Length != 0) hash ^= UserName.GetHashCode();
       if (Password.Length != 0) hash ^= Password.GetHashCode();
+      if (PublicKey.Length != 0) hash ^= PublicKey.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -145,6 +160,10 @@ namespace Chat.Grpc {
         output.WriteRawTag(18);
         output.WriteString(Password);
       }
+      if (PublicKey.Length != 0) {
+        output.WriteRawTag(26);
+        output.WriteBytes(PublicKey);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -158,6 +177,9 @@ namespace Chat.Grpc {
       }
       if (Password.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(Password);
+      }
+      if (PublicKey.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeBytesSize(PublicKey);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -176,6 +198,9 @@ namespace Chat.Grpc {
       if (other.Password.Length != 0) {
         Password = other.Password;
       }
+      if (other.PublicKey.Length != 0) {
+        PublicKey = other.PublicKey;
+      }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -193,6 +218,10 @@ namespace Chat.Grpc {
           }
           case 18: {
             Password = input.ReadString();
+            break;
+          }
+          case 26: {
+            PublicKey = input.ReadBytes();
             break;
           }
         }
@@ -228,6 +257,7 @@ namespace Chat.Grpc {
     public UserCredential(UserCredential other) : this() {
       userName_ = other.userName_;
       expiration_ = other.expiration_;
+      publicKey_ = other.publicKey_;
       signature_ = other.signature_;
       error_ = other.error_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
@@ -260,11 +290,22 @@ namespace Chat.Grpc {
       }
     }
 
+    /// <summary>Field number for the "public_key" field.</summary>
+    public const int PublicKeyFieldNumber = 5;
+    private pb::ByteString publicKey_ = pb::ByteString.Empty;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public pb::ByteString PublicKey {
+      get { return publicKey_; }
+      set {
+        publicKey_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
     /// <summary>Field number for the "signature" field.</summary>
     public const int SignatureFieldNumber = 3;
-    private string signature_ = "";
+    private pb::ByteString signature_ = pb::ByteString.Empty;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public string Signature {
+    public pb::ByteString Signature {
       get { return signature_; }
       set {
         signature_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
@@ -297,6 +338,7 @@ namespace Chat.Grpc {
       }
       if (UserName != other.UserName) return false;
       if (Expiration != other.Expiration) return false;
+      if (PublicKey != other.PublicKey) return false;
       if (Signature != other.Signature) return false;
       if (Error != other.Error) return false;
       return Equals(_unknownFields, other._unknownFields);
@@ -307,6 +349,7 @@ namespace Chat.Grpc {
       int hash = 1;
       if (UserName.Length != 0) hash ^= UserName.GetHashCode();
       if (Expiration != 0) hash ^= Expiration.GetHashCode();
+      if (PublicKey.Length != 0) hash ^= PublicKey.GetHashCode();
       if (Signature.Length != 0) hash ^= Signature.GetHashCode();
       if (Error.Length != 0) hash ^= Error.GetHashCode();
       if (_unknownFields != null) {
@@ -332,11 +375,15 @@ namespace Chat.Grpc {
       }
       if (Signature.Length != 0) {
         output.WriteRawTag(26);
-        output.WriteString(Signature);
+        output.WriteBytes(Signature);
       }
       if (Error.Length != 0) {
         output.WriteRawTag(34);
         output.WriteString(Error);
+      }
+      if (PublicKey.Length != 0) {
+        output.WriteRawTag(42);
+        output.WriteBytes(PublicKey);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -352,8 +399,11 @@ namespace Chat.Grpc {
       if (Expiration != 0) {
         size += 1 + pb::CodedOutputStream.ComputeInt32Size(Expiration);
       }
+      if (PublicKey.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeBytesSize(PublicKey);
+      }
       if (Signature.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(Signature);
+        size += 1 + pb::CodedOutputStream.ComputeBytesSize(Signature);
       }
       if (Error.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(Error);
@@ -374,6 +424,9 @@ namespace Chat.Grpc {
       }
       if (other.Expiration != 0) {
         Expiration = other.Expiration;
+      }
+      if (other.PublicKey.Length != 0) {
+        PublicKey = other.PublicKey;
       }
       if (other.Signature.Length != 0) {
         Signature = other.Signature;
@@ -401,11 +454,15 @@ namespace Chat.Grpc {
             break;
           }
           case 26: {
-            Signature = input.ReadString();
+            Signature = input.ReadBytes();
             break;
           }
           case 34: {
             Error = input.ReadString();
+            break;
+          }
+          case 42: {
+            PublicKey = input.ReadBytes();
             break;
           }
         }
