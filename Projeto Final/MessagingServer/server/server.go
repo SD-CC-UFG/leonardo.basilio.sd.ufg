@@ -8,6 +8,7 @@ import (
 	"google.golang.org/grpc"
 	"io"
 	"log"
+	"math/rand"
 	"net"
 	"sync"
 	"time"
@@ -19,8 +20,9 @@ type userTopicKey struct {
 }
 
 type brokerSub struct {
-	ip   string
-	port int
+	ip    string
+	port  int32
+	topic string
 }
 
 type MessagingServer struct {
@@ -31,6 +33,7 @@ type MessagingServer struct {
 	port         int
 	peers        []*pb.ServiceResponse
 	topicsUser   map[userTopicKey]bool
+	brokerSubs   []brokerSub
 }
 
 func NewMessagingServer(port int) MessagingServer {
@@ -98,6 +101,11 @@ func (s *MessagingServer) loopMessages() {
 		s.mutex.Unlock()
 
 		// forward the message to interested broker
+		for _, v := range s.brokerSubs {
+			if v.topic == chatMessage.Topic {
+				s.sendMessageToBroker(v, chatMessage)
+			}
+		}
 
 		// verify if it is a control message
 		if chatMessage.GetControl() != nil {
@@ -120,7 +128,11 @@ func (s *MessagingServer) registerNamingServer() {
 
 	client := pb.NewNamingClient(conn)
 
-	regReq := &pb.RegistrationRequest{Name: pb.ServiceType_MESSAGING, Port: int32(s.port), Health: 0.8}
+	var seed = time.Now().UTC().UnixNano()
+	rand.Seed(seed)
+
+	health := rand.Float32()
+	regReq := &pb.RegistrationRequest{Name: pb.ServiceType_MESSAGING, Port: int32(s.port), Health: health}
 	regRes, err := client.RegisterService(context.Background(), regReq)
 
 	if err != nil {
@@ -131,7 +143,7 @@ func (s *MessagingServer) registerNamingServer() {
 		log.Fatalf("Registration in naming server failed.\n")
 	}
 
-	log.Println("Registration in naming server.")
+	log.Printf("Registration in naming server (%v)\n", regReq)
 
 	s.ip = regRes.Ip
 	s.peers = regRes.Peers
@@ -150,7 +162,8 @@ func (s *MessagingServer) registerNamingServer() {
 			client := pb.NewNamingClient(conn)
 
 			// log.Print("Ping naming server.")
-			pingReq := &pb.PingRequest{Name: pb.ServiceType_MESSAGING, Port: int32(s.port), Health: 0.8}
+			health := rand.Float32()
+			pingReq := &pb.PingRequest{Name: pb.ServiceType_MESSAGING, Port: int32(s.port), Health: health}
 			pingRes, err := client.Ping(context.Background(), pingReq)
 
 			if err != nil {
@@ -197,8 +210,6 @@ func (s *MessagingServer) getUserChannel(username string) (channel chan *pb.Chat
 }
 
 func (s *MessagingServer) sendMessagesUser(username string, stream pb.Messaging_TalkAndListenServer) {
-	s.addUser(username)
-
 	channel, ok := s.getUserChannel(username)
 
 	if !ok {
@@ -217,6 +228,25 @@ func (s *MessagingServer) sendMessagesUser(username string, stream pb.Messaging_
 			log.Println(err)
 			break
 		}
+	}
+}
+
+func (s *MessagingServer) sendMessageToBroker(subscription brokerSub, chatMessage *pb.ChatMessage) {
+	conn, err := grpc.Dial(fmt.Sprintf("%s:%d", subscription.ip, subscription.port), grpc.WithInsecure())
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer conn.Close()
+
+	client := pb.NewMessagingClient(conn)
+
+	log.Printf("Publish in broker (%s, %d) message of topic %s\n", subscription.ip, subscription.port,
+		chatMessage.Topic)
+
+	_, err = client.Publish(context.Background(), chatMessage)
+	if err != nil {
+		log.Printf("Error on sending message to broker (%s, %d): %v\n", subscription.ip, subscription.port, err)
+		return
 	}
 }
 
@@ -250,6 +280,7 @@ func (s *MessagingServer) TalkAndListen(stream pb.Messaging_TalkAndListenServer)
 
 		if username == "" {
 			username = in.UserCredential.UserName
+			s.addUser(username)
 			go s.sendMessagesUser(username, stream)
 		}
 
@@ -262,12 +293,29 @@ func (s *MessagingServer) TalkAndListen(stream pb.Messaging_TalkAndListenServer)
 
 func (s *MessagingServer) Subscribe(ctx context.Context, request *pb.SubscribeRequest) (*pb.SubscribeResponse, error) {
 	// store topic and interested broker
-	return nil, nil
+	for _, v := range s.brokerSubs {
+		if v.ip == request.Ip && v.port == request.Port && v.topic == request.Topic {
+			// subscription already stored, ignore
+			return &pb.SubscribeResponse{}, nil
+		}
+	}
+
+	s.brokerSubs = append(s.brokerSubs, brokerSub{ip: request.Ip, port: request.Port, topic: request.Topic})
+
+	return &pb.SubscribeResponse{}, nil
 }
 
 func (s *MessagingServer) Unsubscribe(ctx context.Context, request *pb.SubscribeRequest) (*pb.SubscribeResponse, error) {
 	// remove the broker from list of interested in this topic
-	return nil, nil
+	for i, v := range s.brokerSubs {
+		if v.ip == request.Ip && v.port == request.Port && v.topic == request.Topic {
+			s.brokerSubs[i] = s.brokerSubs[len(s.brokerSubs)-1] // assign last element to pos i
+			s.brokerSubs = s.brokerSubs[:len(s.brokerSubs)-1]   // truncate slice, removing last pos
+			break
+		}
+	}
+
+	return &pb.SubscribeResponse{}, nil
 }
 
 func (s *MessagingServer) Publish(ctx context.Context, chatMessage *pb.ChatMessage) (*pb.PublishResponse, error) {
