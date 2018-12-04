@@ -237,7 +237,11 @@ namespace Client {
 
             } else if (this.channelsMap.ContainsKey(message.Topic)) {
 
-                this.channelsMap[message.Topic].AppendMessage(message);
+                var channel = this.channelsMap[message.Topic];
+
+                channel.AppendMessage(message);
+
+                if(channel != this.currentChannel) channel.SetUnread(true);
 
             }
 
@@ -418,6 +422,8 @@ namespace Client {
                 if (newChannel != null) {
 
                     newChannel.Button.Active = true;
+
+                    newChannel.SetUnread(false);
 
                     channelsNotebook.CurrentPage = Array.IndexOf(channelsNotebook.Children, newChannel.Page);
 
