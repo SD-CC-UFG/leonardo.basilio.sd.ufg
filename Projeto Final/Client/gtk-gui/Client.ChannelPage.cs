@@ -28,6 +28,7 @@ namespace Client
 			this.txtRoom = new global::Gtk.TextView();
 			this.txtRoom.CanFocus = true;
 			this.txtRoom.Name = "txtRoom";
+			this.txtRoom.Editable = false;
 			this.GtkScrolledWindow.Add(this.txtRoom);
 			this.hbox1.Add(this.GtkScrolledWindow);
 			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.GtkScrolledWindow]));
