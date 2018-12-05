@@ -94,6 +94,7 @@
                     <child>
                       <widget class="Gtk.Button" id="btSignIn">
                         <property name="MemberName" />
+                        <property name="CanDefault">True</property>
                         <property name="CanFocus">True</property>
                         <property name="Type">TextOnly</property>
                         <property name="Label" translatable="yes">Entrar</property>

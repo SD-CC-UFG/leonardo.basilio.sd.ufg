@@ -104,6 +104,7 @@ namespace Client
 			w4.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
 			this.btSignIn = new global::Gtk.Button();
+			this.btSignIn.CanDefault = true;
 			this.btSignIn.CanFocus = true;
 			this.btSignIn.Name = "btSignIn";
 			this.btSignIn.UseUnderline = true;
