@@ -167,10 +167,19 @@ function unregisterService(node){
 
 function ping(call, callback){
 
+    var request = call.request;
     var response = new messages.PingResponse();
     var node = servicesNodes[buildNodeId(call)];
 
     if(node){
+
+        if(node.health != request.getHealth()){
+
+            node.health = request.getHealth();
+
+            log(ping.name, node.id + ' Health = ' + node.health);
+
+        }
 
         node.timestamp = getMonotonicClock();
 
