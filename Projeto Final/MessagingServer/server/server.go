@@ -3,12 +3,11 @@ package server
 import (
 	"context"
 
+	pb "MessagingServer/grpc"
 	"fmt"
-	pb "github.com/sd-cc-ufg/leonardo.basilio.sd.ufg/ProjetoFinal/MessagingServer/grpc"
 	"google.golang.org/grpc"
 	"io"
 	"log"
-	"math/rand"
 	"net"
 	"sync"
 	"time"
@@ -34,6 +33,7 @@ type MessagingServer struct {
 	peers        []*pb.ServiceResponse
 	topicsUser   map[userTopicKey]bool
 	brokerSubs   []brokerSub
+	health       float32
 }
 
 func NewMessagingServer(port int) MessagingServer {
@@ -75,6 +75,7 @@ func (s *MessagingServer) loopMessages() {
 
 		if chatMessage.GetControl() != nil {
 			if chatMessage.GetControl().GetType() == pb.ControlMessageType_JOINED {
+				log.Printf("User %s joined topic %s\n", username, chatMessage.Topic)
 				s.topicsUser[userTopicKey{username, chatMessage.Topic}] = true
 			}
 		}
@@ -92,9 +93,10 @@ func (s *MessagingServer) loopMessages() {
 
 		// forward the message to interested users
 		s.mutex.Lock()
-		for username, userChannel := range s.userChannels {
-			v, ok := s.topicsUser[userTopicKey{username, chatMessage.Topic}]
-			if ok && v {
+		for uname, userChannel := range s.userChannels {
+			v := s.topicsUser[userTopicKey{uname, chatMessage.Topic}]
+			if v {
+				log.Printf("Send message from %s to %s\n", username, uname)
 				userChannel <- chatMessage
 			}
 		}
@@ -110,6 +112,7 @@ func (s *MessagingServer) loopMessages() {
 		// verify if it is a control message
 		if chatMessage.GetControl() != nil {
 			if chatMessage.GetControl().GetType() == pb.ControlMessageType_QUITTED {
+				log.Printf("User %s quitted topic %s\n", username, chatMessage.Topic)
 				s.topicsUser[userTopicKey{username, chatMessage.Topic}] = false
 			}
 		}
@@ -128,11 +131,8 @@ func (s *MessagingServer) registerNamingServer() {
 
 	client := pb.NewNamingClient(conn)
 
-	var seed = time.Now().UTC().UnixNano()
-	rand.Seed(seed)
-
-	health := rand.Float32()
-	regReq := &pb.RegistrationRequest{Name: pb.ServiceType_MESSAGING, Port: int32(s.port), Health: health}
+	s.health = 100.0
+	regReq := &pb.RegistrationRequest{Name: pb.ServiceType_MESSAGING, Port: int32(s.port), Health: s.health}
 	regRes, err := client.RegisterService(context.Background(), regReq)
 
 	if err != nil {
@@ -151,7 +151,7 @@ func (s *MessagingServer) registerNamingServer() {
 	// start goroutine to ping naming service periodically
 	go func() {
 		for {
-			duration, _ := time.ParseDuration("5s")
+			duration, _ := time.ParseDuration("2s")
 			time.Sleep(duration) // sleep for 5 seconds
 
 			conn, err := grpc.Dial(namingServerAddr, grpc.WithInsecure())
@@ -161,9 +161,8 @@ func (s *MessagingServer) registerNamingServer() {
 
 			client := pb.NewNamingClient(conn)
 
-			// log.Print("Ping naming server.")
-			health := rand.Float32()
-			pingReq := &pb.PingRequest{Name: pb.ServiceType_MESSAGING, Port: int32(s.port), Health: health}
+			pingReq := &pb.PingRequest{Name: pb.ServiceType_MESSAGING, Port: int32(s.port), Health: s.health}
+			//log.Printf("Ping naming server (%v)", pingReq)
 			pingRes, err := client.Ping(context.Background(), pingReq)
 
 			if err != nil {
@@ -171,7 +170,7 @@ func (s *MessagingServer) registerNamingServer() {
 			}
 
 			if !pingRes.Success {
-				log.Fatalf("Error in ping naming server.\n")
+				log.Println("Error in ping naming server.")
 			}
 
 			conn.Close()
@@ -252,6 +251,7 @@ func (s *MessagingServer) sendMessageToBroker(subscription brokerSub, chatMessag
 
 func (s *MessagingServer) TalkAndListen(stream pb.Messaging_TalkAndListenServer) error {
 	var username string
+	s.health--
 
 	for {
 		in, err := stream.Recv()
@@ -262,6 +262,7 @@ func (s *MessagingServer) TalkAndListen(stream pb.Messaging_TalkAndListenServer)
 			// to this user can exit
 
 			s.closeUser(username)
+			s.health++
 
 			if err != io.EOF {
 				log.Println(err)

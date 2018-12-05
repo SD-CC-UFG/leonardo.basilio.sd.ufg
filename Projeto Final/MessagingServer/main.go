@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/sd-cc-ufg/leonardo.basilio.sd.ufg/ProjetoFinal/MessagingServer/server"
+	"MessagingServer/server"
 
 	"os"
 	"strconv"

@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	pb "github.com/sd-cc-ufg/leonardo.basilio.sd.ufg/ProjetoFinal/MessagingServer/grpc"
+	pb "MessagingServer/grpc"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 )

@@ -1,4 +1,4 @@
-module github.com/sd-cc-ufg/leonardo.basilio.sd.ufg/ProjetoFinal/MessagingServer
+module MessagingServer
 
 require (
 	github.com/golang/protobuf v1.2.0
