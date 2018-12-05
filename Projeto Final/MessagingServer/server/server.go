@@ -92,7 +92,7 @@ func (s *MessagingServer) loopMessages() {
 		log.Printf("Message received: %v\n", chatMessage)
 
 		// forward the message to interested users
-		s.mutex.Lock()
+		//s.mutex.Lock()
 		for uname, userChannel := range s.userChannels {
 			v := s.topicsUser[userTopicKey{uname, chatMessage.Topic}]
 			if v {
@@ -100,7 +100,7 @@ func (s *MessagingServer) loopMessages() {
 				userChannel <- chatMessage
 			}
 		}
-		s.mutex.Unlock()
+		//s.mutex.Unlock()
 
 		// forward the message to interested broker
 		for _, v := range s.brokerSubs {
@@ -209,6 +209,7 @@ func (s *MessagingServer) getUserChannel(username string) (channel chan *pb.Chat
 }
 
 func (s *MessagingServer) sendMessagesUser(username string, stream pb.Messaging_TalkAndListenServer) {
+	log.Printf("Start loop to send messages to user %s\n", username)
 	channel, ok := s.getUserChannel(username)
 
 	if !ok {
@@ -216,13 +217,17 @@ func (s *MessagingServer) sendMessagesUser(username string, stream pb.Messaging_
 		return
 	}
 
+	log.Printf("Channel of user %s obtained\n", username)
+
 	// envia mensagens do chat para o usuario
 	for {
+		log.Printf("Waiting for message for user %s\n", username)
 		chatMessage, more := <-channel
 		if !more {
 			log.Printf("Username %s: channel closed.\n", username)
 			break
 		}
+		log.Printf("Send message (%v) to %s.\n", chatMessage, username)
 		if err := stream.Send(chatMessage); err != nil {
 			log.Println(err)
 			break
