@@ -25,24 +25,26 @@ type brokerSub struct {
 }
 
 type MessagingServer struct {
-	mutex        *sync.Mutex
-	userChannels map[string]chan *pb.ChatMessage
-	chatChannel  chan *pb.ChatMessage
-	ip           string
-	port         int
-	peers        []*pb.ServiceResponse
-	topicsUser   map[userTopicKey]bool
-	brokerSubs   []brokerSub
-	health       float32
+	mutex           *sync.Mutex
+	userChannels    map[string]chan *pb.ChatMessage
+	chatChannel     chan *pb.ChatMessage
+	ip              string
+	port            int
+	peers           []*pb.ServiceResponse
+	topicsUser      map[userTopicKey]bool
+	brokerSubs      []brokerSub
+	brokerSubsMutex *sync.Mutex
+	health          float32
 }
 
 func NewMessagingServer(port int) MessagingServer {
 	return MessagingServer{
-		mutex:        &sync.Mutex{},
-		userChannels: make(map[string]chan *pb.ChatMessage),
-		chatChannel:  make(chan *pb.ChatMessage),
-		port:         port,
-		topicsUser:   make(map[userTopicKey]bool),
+		mutex:           &sync.Mutex{},
+		userChannels:    make(map[string]chan *pb.ChatMessage),
+		chatChannel:     make(chan *pb.ChatMessage),
+		port:            port,
+		topicsUser:      make(map[userTopicKey]bool),
+		brokerSubsMutex: &sync.Mutex{},
 	}
 }
 
@@ -67,21 +69,30 @@ func (s *MessagingServer) Start() {
 
 func (s *MessagingServer) loopMessages() {
 	log.Printf("Starting looping to receive messages of users.\n")
+	topicsUser := make(map[userTopicKey]bool)
+	topicsCount := make(map[string]int)
 
 	for {
 		// receive message from a user
 		chatMessage := <-s.chatChannel
 		username := chatMessage.UserCredential.UserName
 
-		if chatMessage.GetControl() != nil {
+		if !chatMessage.External && chatMessage.GetControl() != nil {
 			if chatMessage.GetControl().GetType() == pb.ControlMessageType_JOINED {
 				log.Printf("User %s joined topic %s\n", username, chatMessage.Topic)
-				s.topicsUser[userTopicKey{username, chatMessage.Topic}] = true
+				topicsUser[userTopicKey{username, chatMessage.Topic}] = true
+
+				if topicsCount[chatMessage.Topic] == 0 {
+					req := &pb.SubscribeRequest{Ip: s.ip, Port: int32(s.port), Topic: chatMessage.Topic}
+					s.floodingSubscription(req)
+				}
+
+				topicsCount[chatMessage.Topic]++
 			}
 		}
 
-		if chatMessage.GetText() != nil {
-			if s.topicsUser[userTopicKey{username, chatMessage.Topic}] == false {
+		if !chatMessage.External && chatMessage.GetText() != nil {
+			if topicsUser[userTopicKey{username, chatMessage.Topic}] == false {
 				// user trying to send message to topic he's not joined
 
 				log.Printf("User %s is not joined in topic %s, ignoring message.\n", username, chatMessage.Topic)
@@ -89,31 +100,41 @@ func (s *MessagingServer) loopMessages() {
 			}
 		}
 
+		if chatMessage.External {
+			log.Printf("External chat message\n")
+		}
 		log.Printf("Message received: %v\n", chatMessage)
 
 		// forward the message to interested users
-		//s.mutex.Lock()
+		s.mutex.Lock()
 		for uname, userChannel := range s.userChannels {
-			v := s.topicsUser[userTopicKey{uname, chatMessage.Topic}]
+			v := topicsUser[userTopicKey{uname, chatMessage.Topic}]
 			if v {
 				log.Printf("Send message from %s to %s\n", username, uname)
 				userChannel <- chatMessage
 			}
 		}
-		//s.mutex.Unlock()
+		s.mutex.Unlock()
 
-		// forward the message to interested broker
-		for _, v := range s.brokerSubs {
-			if v.topic == chatMessage.Topic {
-				s.sendMessageToBroker(v, chatMessage)
+		if !chatMessage.External {
+			// forward the message to interested broker
+			for _, v := range s.brokerSubs {
+				if v.topic == chatMessage.Topic {
+					s.sendMessageToBroker(v, chatMessage)
+				}
 			}
 		}
 
 		// verify if it is a control message
-		if chatMessage.GetControl() != nil {
+		if !chatMessage.External && chatMessage.GetControl() != nil {
 			if chatMessage.GetControl().GetType() == pb.ControlMessageType_QUITTED {
 				log.Printf("User %s quitted topic %s\n", username, chatMessage.Topic)
-				s.topicsUser[userTopicKey{username, chatMessage.Topic}] = false
+				topicsUser[userTopicKey{username, chatMessage.Topic}] = false
+				topicsCount[chatMessage.Topic]--
+				if topicsCount[chatMessage.Topic] == 0 {
+					req := &pb.SubscribeRequest{Ip: s.ip, Port: int32(s.port), Topic: chatMessage.Topic}
+					s.floodingUnsubscription(req)
+				}
 			}
 		}
 	}
@@ -147,6 +168,7 @@ func (s *MessagingServer) registerNamingServer() {
 
 	s.ip = regRes.Ip
 	s.peers = regRes.Peers
+	log.Printf("Peers returned: %v\n", s.peers)
 
 	// start goroutine to ping naming service periodically
 	go func() {
@@ -173,17 +195,34 @@ func (s *MessagingServer) registerNamingServer() {
 				log.Println("Error in ping naming server.")
 			}
 
+			if len(s.peers) < 1 {
+				req := &pb.ServiceRequest{Name: pb.ServiceType_MESSAGING}
+				res, err := client.GetServiceLocation(context.Background(), req)
+
+				if err != nil {
+					log.Printf("Error when trying to obtain a peer.\n")
+				} else {
+					if res.Ip != s.ip || int(res.Port) != s.port {
+						s.peers = append(s.peers, res)
+					}
+				}
+			}
+
 			conn.Close()
 		}
 	}()
 }
 
-func (s *MessagingServer) addUser(username string) {
+func (s *MessagingServer) addUser(username string) (ch chan *pb.ChatMessage) {
 	if username != "" {
 		s.mutex.Lock()
 		s.userChannels[username] = make(chan *pb.ChatMessage)
+		ch = s.userChannels[username]
 		s.mutex.Unlock()
+	} else {
+		ch = nil
 	}
+	return
 }
 
 func (s *MessagingServer) closeUser(username string) {
@@ -202,22 +241,12 @@ func (s *MessagingServer) getUserChannel(username string) (channel chan *pb.Chat
 	if username == "" {
 		return nil, false
 	}
-	s.mutex.Lock()
 	channel, ok = s.userChannels[username]
-	s.mutex.Unlock()
 	return
 }
 
-func (s *MessagingServer) sendMessagesUser(username string, stream pb.Messaging_TalkAndListenServer) {
+func (s *MessagingServer) sendMessagesUser(username string, channel chan *pb.ChatMessage, stream pb.Messaging_TalkAndListenServer) {
 	log.Printf("Start loop to send messages to user %s\n", username)
-	channel, ok := s.getUserChannel(username)
-
-	if !ok {
-		log.Printf("Error: request send messages to user that do not exist (user %s)\n", username)
-		return
-	}
-
-	log.Printf("Channel of user %s obtained\n", username)
 
 	// envia mensagens do chat para o usuario
 	for {
@@ -244,13 +273,51 @@ func (s *MessagingServer) sendMessageToBroker(subscription brokerSub, chatMessag
 
 	client := pb.NewMessagingClient(conn)
 
-	log.Printf("Publish in broker (%s, %d) message of topic %s\n", subscription.ip, subscription.port,
-		chatMessage.Topic)
+	log.Printf("Publish in broker (%s, %d) message of topic %s\n", subscription.ip, subscription.port, chatMessage.Topic)
 
+	chatMessage.External = true
 	_, err = client.Publish(context.Background(), chatMessage)
 	if err != nil {
 		log.Printf("Error on sending message to broker (%s, %d): %v\n", subscription.ip, subscription.port, err)
-		return
+	}
+}
+
+func (s *MessagingServer) floodingSubscription(req *pb.SubscribeRequest) {
+	for _, v := range s.peers {
+		conn, err := grpc.Dial(fmt.Sprintf("%s:%d", v.Ip, v.Port), grpc.WithInsecure())
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer conn.Close()
+
+		client := pb.NewMessagingClient(conn)
+
+		log.Printf("Send subscription in topic %s to broker (%s, %d)", req.Topic, v.Ip, v.Port)
+		_, err = client.Subscribe(context.Background(), req)
+		if err != nil {
+			log.Printf("Error on sending to peer (%s, %d)\n", v.Ip, v.Port)
+			continue
+		}
+	}
+}
+
+func (s *MessagingServer) floodingUnsubscription(req *pb.SubscribeRequest) {
+	for _, v := range s.peers {
+		conn, err := grpc.Dial(fmt.Sprintf("%s:%d", v.Ip, v.Port), grpc.WithInsecure())
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer conn.Close()
+
+		client := pb.NewMessagingClient(conn)
+
+		log.Printf("Send unsubscription in topic %s to broker (%s, %d)", req.Topic, v.Ip, v.Port)
+		_, err = client.Unsubscribe(context.Background(), req)
+		if err != nil {
+			log.Printf("Error on sending to peer (%s, %d)\n", v.Ip, v.Port)
+			continue
+		}
+
 	}
 }
 
@@ -286,10 +353,11 @@ func (s *MessagingServer) TalkAndListen(stream pb.Messaging_TalkAndListenServer)
 
 		if username == "" {
 			username = in.UserCredential.UserName
-			s.addUser(username)
-			go s.sendMessagesUser(username, stream)
+			channel := s.addUser(username)
+			go s.sendMessagesUser(username, channel, stream)
 		}
 
+		in.External = false
 		// send to main channel, where messages are processed
 		s.chatChannel <- in
 	}
@@ -298,25 +366,43 @@ func (s *MessagingServer) TalkAndListen(stream pb.Messaging_TalkAndListenServer)
 }
 
 func (s *MessagingServer) Subscribe(ctx context.Context, request *pb.SubscribeRequest) (*pb.SubscribeResponse, error) {
+	if request.Ip == s.ip && request.Port == int32(s.port) {
+		return &pb.SubscribeResponse{}, nil
+	}
+
 	// store topic and interested broker
 	for _, v := range s.brokerSubs {
 		if v.ip == request.Ip && v.port == request.Port && v.topic == request.Topic {
 			// subscription already stored, ignore
+			log.Printf("Subscription already stored\n")
 			return &pb.SubscribeResponse{}, nil
 		}
 	}
 
+	s.brokerSubsMutex.Lock()
 	s.brokerSubs = append(s.brokerSubs, brokerSub{ip: request.Ip, port: request.Port, topic: request.Topic})
+	s.brokerSubsMutex.Unlock()
+
+	go s.floodingSubscription(request)
 
 	return &pb.SubscribeResponse{}, nil
 }
 
 func (s *MessagingServer) Unsubscribe(ctx context.Context, request *pb.SubscribeRequest) (*pb.SubscribeResponse, error) {
+	if request.Ip == s.ip && request.Port == int32(s.port) {
+		return &pb.SubscribeResponse{}, nil
+	}
+
 	// remove the broker from list of interested in this topic
 	for i, v := range s.brokerSubs {
 		if v.ip == request.Ip && v.port == request.Port && v.topic == request.Topic {
+			s.brokerSubsMutex.Lock()
 			s.brokerSubs[i] = s.brokerSubs[len(s.brokerSubs)-1] // assign last element to pos i
 			s.brokerSubs = s.brokerSubs[:len(s.brokerSubs)-1]   // truncate slice, removing last pos
+			s.brokerSubsMutex.Unlock()
+
+			go s.floodingUnsubscription(request)
+
 			break
 		}
 	}
@@ -328,6 +414,7 @@ func (s *MessagingServer) Publish(ctx context.Context, chatMessage *pb.ChatMessa
 	// verify the users interested in the topic of this message
 	// send message to this users' channels
 
+	chatMessage.External = true
 	s.chatChannel <- chatMessage
 	return nil, nil
 }

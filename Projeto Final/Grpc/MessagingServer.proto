@@ -41,6 +41,7 @@ message ChatMessage {
         ControlMessage control = 5;
         ErrorMessage error = 8;
     }
+    bool external = 9;
 }
 
 message SubscribeRequest {
