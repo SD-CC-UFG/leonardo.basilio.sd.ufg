@@ -88,8 +88,8 @@
     <Compile Include="gtk-gui\Client.Preloader.cs" />
     <Compile Include="ChatMessage.cs" />
     <Compile Include="ChannelPage.cs" />
-    <Compile Include="gtk-gui\Client.ChannelTab.cs" />
     <Compile Include="ChannelItem.cs" />
+    <Compile Include="gtk-gui\Client.ChannelPage.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
