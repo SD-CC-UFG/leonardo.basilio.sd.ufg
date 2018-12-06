@@ -170,11 +170,30 @@ func (s *MessagingServer) registerNamingServer() {
 	s.peers = regRes.Peers
 	log.Printf("Peers returned: %v\n", s.peers)
 
+	for _, v := range s.peers {
+		conn, err := grpc.Dial(fmt.Sprintf("%s:%d", v.Ip, v.Port), grpc.WithInsecure())
+		if err != nil {
+			log.Println(err)
+			break
+		}
+		defer conn.Close()
+
+		client := pb.NewMessagingClient(conn)
+		req := &pb.ConnectRequest{Ip: s.ip, Port: int32(s.port)}
+
+		log.Printf("Connect with peer (%s, %d)\n", v.Ip, v.Port)
+
+		_, err = client.Connect(context.Background(), req)
+		if err != nil {
+			log.Printf("Error on connect with peers (%s, %d): %v\n", v.Ip, v.Port, err)
+		}
+	}
+
 	// start goroutine to ping naming service periodically
 	go func() {
 		for {
 			duration, _ := time.ParseDuration("2s")
-			time.Sleep(duration) // sleep for 5 seconds
+			time.Sleep(duration) // sleep for 2 seconds
 
 			conn, err := grpc.Dial(namingServerAddr, grpc.WithInsecure())
 			if err != nil {
@@ -188,24 +207,11 @@ func (s *MessagingServer) registerNamingServer() {
 			pingRes, err := client.Ping(context.Background(), pingReq)
 
 			if err != nil {
-				log.Fatal(err)
+				log.Println(err)
 			}
 
 			if !pingRes.Success {
 				log.Println("Error in ping naming server.")
-			}
-
-			if len(s.peers) < 1 {
-				req := &pb.ServiceRequest{Name: pb.ServiceType_MESSAGING}
-				res, err := client.GetServiceLocation(context.Background(), req)
-
-				if err != nil {
-					log.Printf("Error when trying to obtain a peer.\n")
-				} else {
-					if res.Ip != s.ip || int(res.Port) != s.port {
-						s.peers = append(s.peers, res)
-					}
-				}
 			}
 
 			conn.Close()
@@ -250,7 +256,7 @@ func (s *MessagingServer) sendMessagesUser(username string, channel chan *pb.Cha
 
 	// envia mensagens do chat para o usuario
 	for {
-		log.Printf("Waiting for message for user %s\n", username)
+		//log.Printf("Waiting for message for user %s\n", username)
 		chatMessage, more := <-channel
 		if !more {
 			log.Printf("Username %s: channel closed.\n", username)
@@ -267,13 +273,14 @@ func (s *MessagingServer) sendMessagesUser(username string, channel chan *pb.Cha
 func (s *MessagingServer) sendMessageToBroker(subscription brokerSub, chatMessage *pb.ChatMessage) {
 	conn, err := grpc.Dial(fmt.Sprintf("%s:%d", subscription.ip, subscription.port), grpc.WithInsecure())
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		return
 	}
 	defer conn.Close()
 
 	client := pb.NewMessagingClient(conn)
 
-	log.Printf("Publish in broker (%s, %d) message of topic %s\n", subscription.ip, subscription.port, chatMessage.Topic)
+	log.Printf("Publish in broker (%s, %d) the chat message %v\n", subscription.ip, subscription.port, chatMessage)
 
 	chatMessage.External = true
 	_, err = client.Publish(context.Background(), chatMessage)
@@ -286,13 +293,14 @@ func (s *MessagingServer) floodingSubscription(req *pb.SubscribeRequest) {
 	for _, v := range s.peers {
 		conn, err := grpc.Dial(fmt.Sprintf("%s:%d", v.Ip, v.Port), grpc.WithInsecure())
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
+			break
 		}
 		defer conn.Close()
 
 		client := pb.NewMessagingClient(conn)
 
-		log.Printf("Send subscription in topic %s to broker (%s, %d)", req.Topic, v.Ip, v.Port)
+		log.Printf("Send subscription (%v) to broker (%s, %d)", req, v.Ip, v.Port)
 		_, err = client.Subscribe(context.Background(), req)
 		if err != nil {
 			log.Printf("Error on sending to peer (%s, %d)\n", v.Ip, v.Port)
@@ -305,13 +313,14 @@ func (s *MessagingServer) floodingUnsubscription(req *pb.SubscribeRequest) {
 	for _, v := range s.peers {
 		conn, err := grpc.Dial(fmt.Sprintf("%s:%d", v.Ip, v.Port), grpc.WithInsecure())
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
+			break
 		}
 		defer conn.Close()
 
 		client := pb.NewMessagingClient(conn)
 
-		log.Printf("Send unsubscription in topic %s to broker (%s, %d)", req.Topic, v.Ip, v.Port)
+		log.Printf("Send unsubscription (%v) to broker (%s, %d)", req, v.Ip, v.Port)
 		_, err = client.Unsubscribe(context.Background(), req)
 		if err != nil {
 			log.Printf("Error on sending to peer (%s, %d)\n", v.Ip, v.Port)
@@ -374,15 +383,17 @@ func (s *MessagingServer) Subscribe(ctx context.Context, request *pb.SubscribeRe
 	for _, v := range s.brokerSubs {
 		if v.ip == request.Ip && v.port == request.Port && v.topic == request.Topic {
 			// subscription already stored, ignore
-			log.Printf("Subscription already stored\n")
+			log.Printf("Subscription %v already stored\n", request)
 			return &pb.SubscribeResponse{}, nil
 		}
 	}
 
+	// add subscription
 	s.brokerSubsMutex.Lock()
 	s.brokerSubs = append(s.brokerSubs, brokerSub{ip: request.Ip, port: request.Port, topic: request.Topic})
 	s.brokerSubsMutex.Unlock()
 
+	// propagate subscription to peers
 	go s.floodingSubscription(request)
 
 	return &pb.SubscribeResponse{}, nil
@@ -416,5 +427,11 @@ func (s *MessagingServer) Publish(ctx context.Context, chatMessage *pb.ChatMessa
 
 	chatMessage.External = true
 	s.chatChannel <- chatMessage
-	return nil, nil
+	return &pb.PublishResponse{}, nil
+}
+
+func (s *MessagingServer) Connect(ctx context.Context, req *pb.ConnectRequest) (*pb.ConnectResponse, error) {
+	serviceRes := &pb.ServiceResponse{Ip: req.Ip, Port: req.Port}
+	s.peers = append(s.peers, serviceRes)
+	return &pb.ConnectResponse{}, nil
 }
